@@ -12,6 +12,7 @@ class VisitaModel extends Model {
     public photo_gps_latitude?: string;
     public phone_gps_longitude!: string;
     public phone_gps_latitude!: string;
+    public name_original_image?: string;
     public url_image!: string;
     public comentario?: string;
     public userCreatedAt?: bigint;
@@ -32,6 +33,7 @@ VisitaModel.init(
         photo_gps_latitude: { type: DataTypes.TEXT, allowNull: true },
         phone_gps_longitude: { type: DataTypes.TEXT, allowNull: false },
         phone_gps_latitude: { type: DataTypes.TEXT, allowNull: false },
+        name_original_image: { type: DataTypes.TEXT, allowNull: true },
         url_image: { type: DataTypes.TEXT, allowNull: false },
         comentario: { type: DataTypes.STRING(500), allowNull: true },
         userCreatedAt: { type: DataTypes.BIGINT, allowNull: true },

@@ -17,9 +17,10 @@ export default class AuthServices {
     ) {}
 
     async validLogin(data:LoginDtoType, t:Transaction) : Promise<any | null> {
-        const empleado = await this.tEmpleadoRepo.findByCodigo(data.codigo, true, true)
+        const codigoEmpleado:number = Number(data.codigo.substring(2))
+        const empleado = await this.tEmpleadoRepo.findByCodigo(codigoEmpleado, true, true)
         if(data.password !== empleado?.password) throw new Error("Contraseña incorrecta.");
-        let user = await this.usersRepository.findById(data.codigo, false)
+        let user = await this.usersRepository.findById(codigoEmpleado, false)
         if(!user) user = await this.usersRepository.createUser(
         {
             id_users: empleado.codEmpleado,
