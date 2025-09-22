@@ -1,4 +1,5 @@
 import * as yup from 'yup'
+import { FilesConfigProps } from '../types/MiddlewareTypes'
 
 export const CreateVisitaDto = yup.object({
     empresa: yup.string().required('la [empresa] es un campo obligatorio.'),
@@ -13,5 +14,14 @@ export const CreateVisitaDto = yup.object({
     name_original_image: yup.string(), 
     comentario: yup.string()
 })
+
+export const fileConfigVisitaDto:FilesConfigProps = {
+    nameFormData: 'foto_visita',
+    maxFiles: 1,
+    minFiles: 1,
+    maxSize: 5,
+    allowedTypes: ['image']
+    // maxSize: 
+} 
 
 export type CreateVisitaDtoType = yup.InferType<typeof CreateVisitaDto>

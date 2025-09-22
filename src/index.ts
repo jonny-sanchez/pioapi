@@ -33,7 +33,7 @@ app.use(errorHandlerMiddleware)
 
 app.listen(PORT, ()=> {
 
-    // connectionDb()
+    connectionDb()
 
     console.log(`Server running on http://localhost:${PORT}`)
     
