@@ -15,13 +15,15 @@ export const CreateVisitaDto = yup.object({
     comentario: yup.string()
 })
 
-export const fileConfigVisitaDto:FilesConfigProps = {
-    nameFormData: 'foto_visita',
-    maxFiles: 1,
-    minFiles: 1,
-    maxSize: 5,
-    allowedTypes: ['image']
-    // maxSize: 
-} 
+export const fileConfigVisitaDto:FilesConfigProps[] = [
+    {
+        nameFormData: 'foto_visita',
+        maxFiles: 1,
+        minFiles: 1,
+        maxSize: 5,
+        allowedTypes: ['image']
+        // maxSize: 
+    } 
+]
 
 export type CreateVisitaDtoType = yup.InferType<typeof CreateVisitaDto>
