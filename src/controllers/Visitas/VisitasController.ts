@@ -4,7 +4,7 @@ import { JsonResponse, RequestAuth, userToken } from "../../types/ResponseTypes"
 import { Response } from "express";
 import { handleSend } from "../../utils/HandlerFactory";
 import { Transaction } from "sequelize";
-import { CreateVisitaDtoType } from "../../dtos/CreateVisitaDto";
+import { CreateVisitaDtoType, CreateVisitaDtoTypeFiles } from "../../dtos/CreateVisitaDto";
 
 @injectable()
 export default class VisitasController {
@@ -17,7 +17,7 @@ export default class VisitasController {
                 t as Transaction, 
                 req.body as CreateVisitaDtoType,
                 req.user as userToken,
-                req.files
+                req.files as CreateVisitaDtoTypeFiles
             )
             return result
         }, 'Visitada creada correctamente.', true, 'PIOAPP')

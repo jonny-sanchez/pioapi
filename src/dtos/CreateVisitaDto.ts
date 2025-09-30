@@ -1,5 +1,6 @@
 import * as yup from 'yup'
 import { FilesConfigProps } from '../types/MiddlewareTypes'
+import { UploadedFile } from 'express-fileupload'
 
 export const CreateVisitaDto = yup.object({
     empresa: yup.string().required('la [empresa] es un campo obligatorio.'),
@@ -42,5 +43,10 @@ export const fileConfigVisitaDto:FilesConfigProps[] = [
         // maxSize: 
     } 
 ]
+
+export type CreateVisitaDtoTypeFiles = {
+    foto_visita?: UploadedFile;
+    foto_personas?: UploadedFile;
+}
 
 export type CreateVisitaDtoType = yup.InferType<typeof CreateVisitaDto>
