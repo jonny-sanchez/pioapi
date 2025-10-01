@@ -3,10 +3,13 @@ import { client } from "../../config/S3Config";
 import { v4 as uuidv4 } from 'uuid'
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { CarpetasS3Type, fileUploadSingleType } from "../../types/FilesTypes"; 
+import { injectable, inject } from "tsyringe";
+import SharpServices from "./SharpServices";
 
+@injectable()
 export default class FileServices {
 
-    constructor() {}
+    constructor(@inject(SharpServices) private sharpServices:SharpServices) {}
 
     async fileUploadSingle(file?:UploadedFile | null, carpeta?:CarpetasS3Type) : Promise<fileUploadSingleType> {
 
@@ -15,10 +18,12 @@ export default class FileServices {
 
             const nameFile = `${carpeta}/${uuidv4()}-${file?.name || 'default'}`
 
+            const optimizedData = await this.sharpServices.optimizedFileBuffer(file) 
+
             const command = new PutObjectCommand({
                 Bucket: `${process.env.AWS_BUCKET_NAME}`,
                 Key: `${nameFile}`,
-                Body: file.data,
+                Body: optimizedData,
                 ContentType: file.mimetype
             })
 
