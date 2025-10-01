@@ -18,19 +18,19 @@ export default class UsersServices {
         let user = await this.usersRepository.findById(codigoEmpleado, false)
         if(!user) user = await this.usersRepository.createUser(
         {
-            id_users: empleado?.codEmpleado,
-            codigo_user: empleado?.aliasCodigo,
+            id_users: empleado?.codEmpleado || null,
+            codigo_user: empleado?.aliasCodigo || null,
             id_rol: 1,
-            first_name: empleado?.nombreEmpleado,
-            second_name: empleado?.segundoNombre,
-            first_last_name: empleado?.apellidoEmpleado,
-            second_last_name: empleado?.segundoApellido,
-            email: empleado?.email,
-            password: await this.cryptServices.Hash(empleado?.password),
-            dpi: empleado?.noDoc,
-            fecha_nacimiento: empleado?.fechaNac,
-            direccion: empleado?.direccion,
-            puesto_trabajo: empleado?.nomPuesto
+            first_name: empleado?.nombreEmpleado || null,
+            second_name: empleado?.segundoNombre || null,
+            first_last_name: empleado?.apellidoEmpleado || null,
+            second_last_name: empleado?.segundoApellido || null,
+            email: empleado?.email || null,
+            password: await this.cryptServices.Hash(empleado?.password || ''),
+            dpi: empleado?.noDoc || null,
+            fecha_nacimiento: empleado?.fechaNac || null,
+            direccion: empleado?.direccion || null,
+            puesto_trabajo: empleado?.nomPuesto || null
         }, t) 
         return json ? user?.toJSON() : user
     }

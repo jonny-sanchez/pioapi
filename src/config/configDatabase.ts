@@ -12,7 +12,13 @@ export const configDatabase = {
         options: {
             host: ENV.DB_HOST as string,
             port: ENV.DB_PORT,
-            dialect: ENV.DB_CONNECTION
+            dialect: ENV.DB_CONNECTION,
+            dialectOptions: {
+              ssl: {
+                require: true,
+                rejectUnauthorized: false
+              }
+            }
         }
     },
     NOMINA: {
