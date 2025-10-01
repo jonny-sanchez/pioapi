@@ -4,6 +4,7 @@ import { injectable, inject } from "tsyringe";
 import tEmpleadoModel from "../../models/nomina/tables/tEmpleadoModel";
 import CryptServices from "../Auth/CryptServices";
 import UsersModel from "../../models/pioapp/tables/UsersModel";
+import DetalleEmpleadoCootraguaView from "../../models/nomina/views/DetalleEmpleadoCootraguaView";
 
 @injectable()
 export default class UsersServices {
@@ -13,11 +14,12 @@ export default class UsersServices {
         @inject(CryptServices) private cryptServices:CryptServices
     ) {}
 
-    async findOrCreateUserLogin(codigoEmpleado:number, empleado:tEmpleadoModel | null, t:Transaction, json:boolean = false) : Promise<UsersModel | null | undefined> {
+    async findOrCreateUserLogin(codigoEmpleado:number, empleado:DetalleEmpleadoCootraguaView | null, t:Transaction, json:boolean = false) : Promise<UsersModel | null | undefined> {
         let user = await this.usersRepository.findById(codigoEmpleado, false)
         if(!user) user = await this.usersRepository.createUser(
         {
             id_users: empleado?.codEmpleado,
+            codigo_user: empleado?.aliasCodigo,
             id_rol: 1,
             first_name: empleado?.nombreEmpleado,
             second_name: empleado?.segundoNombre,
@@ -25,6 +27,10 @@ export default class UsersServices {
             second_last_name: empleado?.segundoApellido,
             email: empleado?.email,
             password: await this.cryptServices.Hash(empleado?.password),
+            dpi: empleado?.noDoc,
+            fecha_nacimiento: empleado?.fechaNac,
+            direccion: empleado?.direccion,
+            puesto_trabajo: empleado?.nomPuesto
         }, t) 
         return json ? user?.toJSON() : user
     }
