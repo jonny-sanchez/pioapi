@@ -11,7 +11,7 @@ export default class FileServices {
 
     constructor(@inject(SharpServices) private sharpServices:SharpServices) {}
 
-    async fileUploadSingle(file?:UploadedFile | null, carpeta?:CarpetasS3Type) : Promise<fileUploadSingleType> {
+    async fileUploadSingle(file?:UploadedFile | null, carpeta:CarpetasS3Type = 'visitas') : Promise<fileUploadSingleType> {
 
         try {
             if(!file) throw new Error("No se recibio ningun archivo.")
