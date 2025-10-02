@@ -6,6 +6,9 @@ import { injectable, inject, container } from 'tsyringe';
 import { genSalt, hash, compare } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as yup from 'yup';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { v4 } from 'uuid';
+import sharp from 'sharp';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
 
@@ -19,7 +22,13 @@ const configDatabase = {
     options: {
       host: ENV.DB_HOST,
       port: ENV.DB_PORT,
-      dialect: ENV.DB_CONNECTION
+      dialect: ENV.DB_CONNECTION,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      }
     }
   },
   NOMINA: {
@@ -217,9 +226,9 @@ tEmpleadoModel.init(
   }
 );
 
-var __getOwnPropDesc$d = Object.getOwnPropertyDescriptor;
-var __decorateClass$d = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$d(target, key) : target;
+var __getOwnPropDesc$i = Object.getOwnPropertyDescriptor;
+var __decorateClass$i = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$i(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -234,13 +243,13 @@ let tEmpleadoRepository = class {
     return empleado;
   }
 };
-tEmpleadoRepository = __decorateClass$d([
+tEmpleadoRepository = __decorateClass$i([
   injectable()
 ], tEmpleadoRepository);
 
-var __getOwnPropDesc$c = Object.getOwnPropertyDescriptor;
-var __decorateClass$c = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$c(target, key) : target;
+var __getOwnPropDesc$h = Object.getOwnPropertyDescriptor;
+var __decorateClass$h = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$h(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -259,7 +268,7 @@ let CryptServices = class {
     return compare(text, textHash);
   }
 };
-CryptServices = __decorateClass$c([
+CryptServices = __decorateClass$h([
   injectable()
 ], CryptServices);
 
@@ -278,6 +287,7 @@ function verifyToken(token) {
 
 class UsersModel extends Model {
   id_users;
+  codigo_user;
   id_rol;
   first_name;
   second_name;
@@ -285,6 +295,10 @@ class UsersModel extends Model {
   second_last_name;
   email;
   password;
+  dpi;
+  fecha_nacimiento;
+  direccion;
+  puesto_trabajo;
   userCreatedAt;
   userUpdatedAt;
   createdAt;
@@ -293,6 +307,7 @@ class UsersModel extends Model {
 UsersModel.init(
   {
     id_users: { type: DataTypes.BIGINT, primaryKey: true, allowNull: false },
+    codigo_user: { type: DataTypes.STRING(100), allowNull: false },
     id_rol: { type: DataTypes.INTEGER, allowNull: false },
     first_name: { type: DataTypes.STRING(500), allowNull: false },
     second_name: { type: DataTypes.STRING(500), allowNull: true },
@@ -300,6 +315,10 @@ UsersModel.init(
     second_last_name: { type: DataTypes.STRING(500), allowNull: true },
     email: { type: DataTypes.STRING(500), allowNull: true },
     password: { type: DataTypes.TEXT, allowNull: false },
+    dpi: { type: DataTypes.TEXT, allowNull: true },
+    fecha_nacimiento: { type: DataTypes.DATE, allowNull: true },
+    direccion: { type: DataTypes.STRING(500), allowNull: true },
+    puesto_trabajo: { type: DataTypes.STRING(500), allowNull: true },
     userCreatedAt: { type: DataTypes.BIGINT, allowNull: true },
     userUpdatedAt: { type: DataTypes.BIGINT, allowNull: true }
   },
@@ -311,9 +330,9 @@ UsersModel.init(
   }
 );
 
-var __getOwnPropDesc$b = Object.getOwnPropertyDescriptor;
-var __decorateClass$b = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$b(target, key) : target;
+var __getOwnPropDesc$g = Object.getOwnPropertyDescriptor;
+var __decorateClass$g = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$g(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -333,19 +352,19 @@ let UsersRepository = class {
     return user;
   }
 };
-UsersRepository = __decorateClass$b([
+UsersRepository = __decorateClass$g([
   injectable()
 ], UsersRepository);
 
-var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
-var __decorateClass$a = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
+var __getOwnPropDesc$f = Object.getOwnPropertyDescriptor;
+var __decorateClass$f = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$f(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
   return result;
 };
-var __decorateParam$6 = (index, decorator) => (target, key) => decorator(target, key, index);
+var __decorateParam$8 = (index, decorator) => (target, key) => decorator(target, key, index);
 let UsersServices = class {
   constructor(usersRepository, cryptServices) {
     this.usersRepository = usersRepository;
@@ -355,44 +374,211 @@ let UsersServices = class {
     let user = await this.usersRepository.findById(codigoEmpleado, false);
     if (!user) user = await this.usersRepository.createUser(
       {
-        id_users: empleado?.codEmpleado,
+        id_users: empleado?.codEmpleado || null,
+        codigo_user: empleado?.aliasCodigo || null,
         id_rol: 1,
-        first_name: empleado?.nombreEmpleado,
-        second_name: empleado?.segundoNombre,
-        first_last_name: empleado?.apellidoEmpleado,
-        second_last_name: empleado?.segundoApellido,
-        email: empleado?.email,
-        password: await this.cryptServices.Hash(empleado?.password)
+        first_name: empleado?.nombreEmpleado || null,
+        second_name: empleado?.segundoNombre || null,
+        first_last_name: empleado?.apellidoEmpleado || null,
+        second_last_name: empleado?.segundoApellido || null,
+        email: empleado?.email || null,
+        password: await this.cryptServices.Hash(empleado?.password || ""),
+        dpi: empleado?.noDoc || null,
+        fecha_nacimiento: empleado?.fechaNac || null,
+        direccion: empleado?.direccion || null,
+        puesto_trabajo: empleado?.nomPuesto || null
       },
       t
     );
     return json ? user?.toJSON() : user;
   }
 };
-UsersServices = __decorateClass$a([
+UsersServices = __decorateClass$f([
   injectable(),
-  __decorateParam$6(0, inject(UsersRepository)),
-  __decorateParam$6(1, inject(CryptServices))
+  __decorateParam$8(0, inject(UsersRepository)),
+  __decorateParam$8(1, inject(CryptServices))
 ], UsersServices);
 
-var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
-var __decorateClass$9 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
+class DetalleEmpleadoCootraguaView extends Model {
+  codEmpleado;
+  nombreEmpleado;
+  apellidoEmpleado;
+  segundoNombre;
+  segundoApellido;
+  apellidoCasada;
+  sexo;
+  direccion;
+  paisOrigen;
+  discapacidad;
+  estadoCivil;
+  raza;
+  tipoDoc;
+  noDoc;
+  departNac;
+  muniNac;
+  departVec;
+  muniVec;
+  fechaNac;
+  fechaNac_2;
+  conyugue;
+  noIGGS;
+  numeroHijos;
+  NIT;
+  fechaVecIRTRA;
+  email;
+  noTel;
+  noTelEmerg;
+  noTelNoti;
+  nomBeneficiario;
+  celBeneficiario;
+  banco;
+  noCuenta;
+  noLicen;
+  tipoLicen;
+  fechaVecLicen;
+  noLicenGun;
+  fechaVecLicenGun;
+  noContract;
+  venciTarjSal;
+  venciTarjPul;
+  venciTarjMan;
+  codEmpleadoJefe;
+  jefeInmediato;
+  nombreEmpleadoCompleto;
+  codEmpresa;
+  nombreDepto;
+  nombreEmpresa;
+  password;
+  codJefeDepto;
+  activoContrato;
+  profesion;
+  activoEmpleado;
+  aliasCodigo;
+  nomContactEmerg;
+  numContactEmerg;
+  parenContactEmerg;
+  tipoSangre;
+  empleadoTrato;
+  empresaTrato;
+  fechaIngreso;
+  fecha_ingreso_str;
+  codDepto;
+  nomPuesto;
+}
+DetalleEmpleadoCootraguaView.init(
+  {
+    codEmpleado: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
+    nombreEmpleado: { type: DataTypes.STRING(32), allowNull: false },
+    apellidoEmpleado: { type: DataTypes.STRING(24), allowNull: false },
+    segundoNombre: { type: DataTypes.STRING(128), allowNull: true },
+    segundoApellido: { type: DataTypes.STRING(128), allowNull: true },
+    apellidoCasada: { type: DataTypes.STRING(24), allowNull: true },
+    sexo: { type: DataTypes.STRING(9), allowNull: false },
+    direccion: { type: DataTypes.STRING(100), allowNull: false },
+    paisOrigen: { type: DataTypes.STRING(56), allowNull: false },
+    discapacidad: { type: DataTypes.STRING(20), allowNull: false },
+    estadoCivil: { type: DataTypes.STRING(10), allowNull: false },
+    raza: { type: DataTypes.STRING(10), allowNull: false },
+    tipoDoc: { type: DataTypes.STRING(10), allowNull: false },
+    noDoc: { type: DataTypes.STRING(20), allowNull: false },
+    departNac: { type: DataTypes.STRING(35), allowNull: false },
+    muniNac: { type: DataTypes.STRING(35), allowNull: false },
+    departVec: { type: DataTypes.STRING(35), allowNull: false },
+    muniVec: { type: DataTypes.STRING(35), allowNull: false },
+    fechaNac: { type: DataTypes.STRING(30), allowNull: true },
+    fechaNac_2: { type: DataTypes.STRING(30), allowNull: true },
+    conyugue: { type: DataTypes.STRING(128), allowNull: true },
+    noIGGS: { type: DataTypes.STRING(20), allowNull: false },
+    numeroHijos: { type: DataTypes.INTEGER, allowNull: false },
+    NIT: { type: DataTypes.STRING(12), allowNull: false },
+    fechaVecIRTRA: { type: DataTypes.STRING(30), allowNull: true },
+    email: { type: DataTypes.STRING(512), allowNull: true },
+    noTel: { type: DataTypes.STRING(9), allowNull: true },
+    noTelEmerg: { type: DataTypes.STRING(9), allowNull: false },
+    noTelNoti: { type: DataTypes.STRING(9), allowNull: false },
+    nomBeneficiario: { type: DataTypes.STRING(128), allowNull: true },
+    celBeneficiario: { type: DataTypes.STRING(9), allowNull: false },
+    banco: { type: DataTypes.STRING(32), allowNull: false },
+    noCuenta: { type: DataTypes.STRING(32), allowNull: false },
+    noLicen: { type: DataTypes.STRING(15), allowNull: true },
+    tipoLicen: { type: DataTypes.STRING(2), allowNull: true },
+    fechaVecLicen: { type: DataTypes.STRING(30), allowNull: true },
+    noLicenGun: { type: DataTypes.STRING(15), allowNull: true },
+    fechaVecLicenGun: { type: DataTypes.STRING(30), allowNull: true },
+    noContract: { type: DataTypes.INTEGER, allowNull: true },
+    venciTarjSal: { type: DataTypes.STRING(30), allowNull: true },
+    venciTarjPul: { type: DataTypes.STRING(30), allowNull: true },
+    venciTarjMan: { type: DataTypes.STRING(30), allowNull: true },
+    codEmpleadoJefe: { type: DataTypes.INTEGER, allowNull: true },
+    jefeInmediato: { type: DataTypes.STRING(315), allowNull: true },
+    nombreEmpleadoCompleto: { type: DataTypes.STRING(315), allowNull: false },
+    codEmpresa: { type: DataTypes.INTEGER, allowNull: true },
+    nombreDepto: { type: DataTypes.STRING(128), allowNull: true },
+    nombreEmpresa: { type: DataTypes.STRING(64), allowNull: true },
+    password: { type: DataTypes.STRING(32), allowNull: true },
+    codJefeDepto: { type: DataTypes.INTEGER, allowNull: true },
+    activoContrato: { type: DataTypes.BOOLEAN, allowNull: true },
+    profesion: { type: DataTypes.STRING(128), allowNull: true },
+    activoEmpleado: { type: DataTypes.BOOLEAN, allowNull: true },
+    aliasCodigo: { type: DataTypes.STRING(6), allowNull: true },
+    nomContactEmerg: { type: DataTypes.STRING(128), allowNull: true },
+    numContactEmerg: { type: DataTypes.STRING(9), allowNull: true },
+    parenContactEmerg: { type: DataTypes.STRING(64), allowNull: true },
+    tipoSangre: { type: DataTypes.STRING(12), allowNull: true },
+    empleadoTrato: { type: DataTypes.BOOLEAN, allowNull: true },
+    empresaTrato: { type: DataTypes.INTEGER, allowNull: true },
+    fechaIngreso: { type: DataTypes.DATE, allowNull: true },
+    fecha_ingreso_str: { type: DataTypes.STRING(30), allowNull: true },
+    codDepto: { type: DataTypes.INTEGER, allowNull: true },
+    nomPuesto: { type: DataTypes.STRING(64), allowNull: true }
+  },
+  {
+    sequelize: sequelizeInit("NOMINA"),
+    tableName: "vwDetalleEmpleadoCootragua",
+    timestamps: false
+  }
+);
+
+var __getOwnPropDesc$e = Object.getOwnPropertyDescriptor;
+var __decorateClass$e = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$e(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
   return result;
 };
-var __decorateParam$5 = (index, decorator) => (target, key) => decorator(target, key, index);
+let DetalleEmpleadoCootraguaViewRepository = class {
+  async findByCodigo(codigo, error = true, raw = false) {
+    const result = await DetalleEmpleadoCootraguaView.findByPk(codigo, { raw });
+    if (error) {
+      if (!result) throw new Error("Empleado no encontrado.");
+    }
+    return result;
+  }
+};
+DetalleEmpleadoCootraguaViewRepository = __decorateClass$e([
+  injectable()
+], DetalleEmpleadoCootraguaViewRepository);
+
+var __getOwnPropDesc$d = Object.getOwnPropertyDescriptor;
+var __decorateClass$d = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$d(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (decorator(result)) || result;
+  return result;
+};
+var __decorateParam$7 = (index, decorator) => (target, key) => decorator(target, key, index);
 let AuthServices = class {
-  constructor(tEmpleadoRepo, cryptServices, usersServices) {
+  constructor(tEmpleadoRepo, cryptServices, usersServices, detalleEmpleadoCootraguaViewRepository) {
     this.tEmpleadoRepo = tEmpleadoRepo;
     this.cryptServices = cryptServices;
     this.usersServices = usersServices;
+    this.detalleEmpleadoCootraguaViewRepository = detalleEmpleadoCootraguaViewRepository;
   }
   async validLogin(data, t) {
     const codigoEmpleado = Number(data.codigo.substring(2));
-    const empleado = await this.tEmpleadoRepo.findByCodigo(codigoEmpleado, true, true);
+    const empleado = await this.detalleEmpleadoCootraguaViewRepository.findByCodigo(codigoEmpleado, true, true);
     const user = await this.usersServices.findOrCreateUserLogin(codigoEmpleado, empleado, t, true);
     const resultCompare = await this.cryptServices.Compare(data.password, user?.password);
     if (!resultCompare) throw new Error("Contrase\xF1a incorrecta.");
@@ -402,11 +588,12 @@ let AuthServices = class {
     return userData;
   }
 };
-AuthServices = __decorateClass$9([
+AuthServices = __decorateClass$d([
   injectable(),
-  __decorateParam$5(0, inject(tEmpleadoRepository)),
-  __decorateParam$5(1, inject(CryptServices)),
-  __decorateParam$5(2, inject(UsersServices))
+  __decorateParam$7(0, inject(tEmpleadoRepository)),
+  __decorateParam$7(1, inject(CryptServices)),
+  __decorateParam$7(2, inject(UsersServices)),
+  __decorateParam$7(3, inject(DetalleEmpleadoCootraguaViewRepository))
 ], AuthServices);
 
 async function handleSend(res, callback = async () => {
@@ -426,15 +613,15 @@ async function handleSend(res, callback = async () => {
   }
 }
 
-var __getOwnPropDesc$8 = Object.getOwnPropertyDescriptor;
-var __decorateClass$8 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$8(target, key) : target;
+var __getOwnPropDesc$c = Object.getOwnPropertyDescriptor;
+var __decorateClass$c = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$c(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
   return result;
 };
-var __decorateParam$4 = (index, decorator) => (target, key) => decorator(target, key, index);
+var __decorateParam$6 = (index, decorator) => (target, key) => decorator(target, key, index);
 let AuthController = class {
   constructor(authServices) {
     this.authServices = authServices;
@@ -446,9 +633,9 @@ let AuthController = class {
     }, "Credenciales correctas", true, "PIOAPP");
   }
 };
-AuthController = __decorateClass$8([
+AuthController = __decorateClass$c([
   injectable(),
-  __decorateParam$4(0, inject(AuthServices))
+  __decorateParam$6(0, inject(AuthServices))
 ], AuthController);
 
 function BYTE(mb = 0) {
@@ -550,9 +737,9 @@ TipoVisitaModel.init(
   }
 );
 
-var __getOwnPropDesc$7 = Object.getOwnPropertyDescriptor;
-var __decorateClass$7 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$7(target, key) : target;
+var __getOwnPropDesc$b = Object.getOwnPropertyDescriptor;
+var __decorateClass$b = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$b(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -564,19 +751,19 @@ let TipoVisitaRepository = class {
     return result;
   }
 };
-TipoVisitaRepository = __decorateClass$7([
+TipoVisitaRepository = __decorateClass$b([
   injectable()
 ], TipoVisitaRepository);
 
-var __getOwnPropDesc$6 = Object.getOwnPropertyDescriptor;
-var __decorateClass$6 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$6(target, key) : target;
+var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
+var __decorateClass$a = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
   return result;
 };
-var __decorateParam$3 = (index, decorator) => (target, key) => decorator(target, key, index);
+var __decorateParam$5 = (index, decorator) => (target, key) => decorator(target, key, index);
 let TipoVisitasController = class {
   constructor(tipoVisitaRepository) {
     this.tipoVisitaRepository = tipoVisitaRepository;
@@ -588,9 +775,9 @@ let TipoVisitasController = class {
     }, "Tipos visitas listados correctamente.");
   }
 };
-TipoVisitasController = __decorateClass$6([
+TipoVisitasController = __decorateClass$a([
   injectable(),
-  __decorateParam$3(0, inject(TipoVisitaRepository))
+  __decorateParam$5(0, inject(TipoVisitaRepository))
 ], TipoVisitasController);
 
 const tipoVisitasRouter = Router();
@@ -664,9 +851,9 @@ TiendasModuloView.init(
   }
 );
 
-var __getOwnPropDesc$5 = Object.getOwnPropertyDescriptor;
-var __decorateClass$5 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$5(target, key) : target;
+var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
+var __decorateClass$9 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -678,19 +865,19 @@ let TiendasModuloRepository = class {
     return result;
   }
 };
-TiendasModuloRepository = __decorateClass$5([
+TiendasModuloRepository = __decorateClass$9([
   injectable()
 ], TiendasModuloRepository);
 
-var __getOwnPropDesc$4 = Object.getOwnPropertyDescriptor;
-var __decorateClass$4 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$4(target, key) : target;
+var __getOwnPropDesc$8 = Object.getOwnPropertyDescriptor;
+var __decorateClass$8 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$8(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
   return result;
 };
-var __decorateParam$2 = (index, decorator) => (target, key) => decorator(target, key, index);
+var __decorateParam$4 = (index, decorator) => (target, key) => decorator(target, key, index);
 let TiendasModuloController = class {
   constructor(tiendasModuloRepository) {
     this.tiendasModuloRepository = tiendasModuloRepository;
@@ -702,9 +889,9 @@ let TiendasModuloController = class {
     }, "Tiendas listadas correctamente.");
   }
 };
-TiendasModuloController = __decorateClass$4([
+TiendasModuloController = __decorateClass$8([
   injectable(),
-  __decorateParam$2(0, inject(TiendasModuloRepository))
+  __decorateParam$4(0, inject(TiendasModuloRepository))
 ], TiendasModuloController);
 
 const tiendasModuloRouter = Router();
@@ -727,6 +914,7 @@ class VisitaModel extends Model {
   url_image;
   id_form_supervision;
   comentario;
+  google_maps_url;
   userCreatedAt;
   userUpdatedAt;
   createdAt;
@@ -748,6 +936,7 @@ VisitaModel.init(
     url_image: { type: DataTypes.TEXT, allowNull: false },
     id_form_supervision: { type: DataTypes.INTEGER, allowNull: true },
     comentario: { type: DataTypes.STRING(500), allowNull: true },
+    google_maps_url: { type: DataTypes.TEXT, allowNull: false },
     userCreatedAt: { type: DataTypes.BIGINT, allowNull: true },
     userUpdatedAt: { type: DataTypes.BIGINT, allowNull: true }
   },
@@ -759,9 +948,9 @@ VisitaModel.init(
   }
 );
 
-var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
-var __decorateClass$3 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
+var __getOwnPropDesc$7 = Object.getOwnPropertyDescriptor;
+var __decorateClass$7 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$7(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -778,7 +967,7 @@ let VisitaRepository = class {
     return result;
   }
 };
-VisitaRepository = __decorateClass$3([
+VisitaRepository = __decorateClass$7([
   injectable()
 ], VisitaRepository);
 
@@ -817,9 +1006,9 @@ FormSupervisionModel.init(
   }
 );
 
-var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
-var __decorateClass$2 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
+var __getOwnPropDesc$6 = Object.getOwnPropertyDescriptor;
+var __decorateClass$6 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$6(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
@@ -832,7 +1021,7 @@ let FormSupervisionRepository = class {
     return raw ? result.get({ plain: true }) : result;
   }
 };
-FormSupervisionRepository = __decorateClass$2([
+FormSupervisionRepository = __decorateClass$6([
   injectable()
 ], FormSupervisionRepository);
 
@@ -840,43 +1029,119 @@ function toBoolean(value) {
   return value === true || value === "true";
 }
 
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-var __decorateClass$1 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
+const client = new S3Client({
+  region: `${process.env.AWS_BUCKET_REGION}`,
+  credentials: {
+    accessKeyId: `${process.env.AWS_PUBLIC_KEY}`,
+    secretAccessKey: `${process.env.AWS_SECRET_KEY}`
+  }
+});
+
+var __getOwnPropDesc$5 = Object.getOwnPropertyDescriptor;
+var __decorateClass$5 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$5(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (decorator(result)) || result;
+  return result;
+};
+let SharpServices = class {
+  constructor() {
+  }
+  async optimizedFileBuffer(file) {
+    let dataOptimized = file.data;
+    if (file.mimetype === "image/png")
+      dataOptimized = await sharp(file.data).png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/jpg")
+      dataOptimized = await sharp(file.data).jpeg({ quality: 95, mozjpeg: true }).toBuffer();
+    return dataOptimized;
+  }
+};
+SharpServices = __decorateClass$5([
+  injectable()
+], SharpServices);
+
+var __getOwnPropDesc$4 = Object.getOwnPropertyDescriptor;
+var __decorateClass$4 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$4(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (decorator(result)) || result;
+  return result;
+};
+var __decorateParam$3 = (index, decorator) => (target, key) => decorator(target, key, index);
+let FileServices = class {
+  constructor(sharpServices) {
+    this.sharpServices = sharpServices;
+  }
+  async fileUploadSingle(file, carpeta = "visitas") {
+    try {
+      if (!file) throw new Error("No se recibio ningun archivo.");
+      const nameFile = `${carpeta}/${v4()}-${file?.name || "default"}`;
+      const optimizedData = await this.sharpServices.optimizedFileBuffer(file);
+      const command = new PutObjectCommand({
+        Bucket: `${process.env.AWS_BUCKET_NAME}`,
+        Key: `${nameFile}`,
+        Body: optimizedData,
+        ContentType: file.mimetype
+      });
+      const result = await client.send(command);
+      if (result.$metadata.httpStatusCode != 200) throw new Error("Error al subir la imagen (Servicio S3).");
+      return {
+        nameFileKey: nameFile,
+        urlS3: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/${nameFile}`
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+FileServices = __decorateClass$4([
+  injectable(),
+  __decorateParam$3(0, inject(SharpServices))
+], FileServices);
+
+var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
+var __decorateClass$3 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (decorator(result)) || result;
+  return result;
+};
+var __decorateParam$2 = (index, decorator) => (target, key) => decorator(target, key, index);
+let VisitasService = class {
+  constructor(visitaRepository, formSupervisionRepository, fileServices) {
+    this.visitaRepository = visitaRepository;
+    this.formSupervisionRepository = formSupervisionRepository;
+    this.fileServices = fileServices;
+  }
+  async createVisitaAndSaveFile(t, data, user, file) {
+    const resultUploadPhotoVisita = await this.fileServices.fileUploadSingle(file.foto_visita, "visitas");
+    const resultUploadPhotoPersonas = file.foto_personas ? await this.fileServices.fileUploadSingle(file.foto_personas, "visitas") : null;
+    const insertFormSupervision = data.id_tipo_visita == 1 ? await this.formSupervisionRepository.create({ ...data, url_photo_personas: resultUploadPhotoPersonas?.urlS3 || null, cantidad: !toBoolean(data?.cantidad_personas) ? null : data.cantidad }, t, true) : null;
+    const insertVisita = await this.visitaRepository.create({ ...data, google_maps_url: `https://www.google.com/maps/search/?api=1&query=${data.phone_gps_latitude},${data.phone_gps_longitude}`, id_form_supervision: insertFormSupervision?.id_form_supervision || null, url_image: resultUploadPhotoVisita.urlS3, userCreatedAt: user.id_users }, t);
+    return insertVisita;
+  }
+  async filterVisitas() {
+  }
+};
+VisitasService = __decorateClass$3([
+  injectable(),
+  __decorateParam$2(0, inject(VisitaRepository)),
+  __decorateParam$2(1, inject(FormSupervisionRepository)),
+  __decorateParam$2(2, inject(FileServices))
+], VisitasService);
+
+var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
+var __decorateClass$2 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (decorator(result)) || result;
   return result;
 };
 var __decorateParam$1 = (index, decorator) => (target, key) => decorator(target, key, index);
-let VisitasService = class {
-  constructor(visitaRepository, formSupervisionRepository) {
-    this.visitaRepository = visitaRepository;
-    this.formSupervisionRepository = formSupervisionRepository;
-  }
-  async createVisitaAndSaveFile(t, data, user, file) {
-    const insertFormSupervision = data.id_tipo_visita == 1 ? await this.formSupervisionRepository.create({ ...data, cantidad: !toBoolean(data?.cantidad_personas) ? null : data.cantidad }, t, true) : null;
-    const insertVisita = await this.visitaRepository.create({ ...data, id_form_supervision: insertFormSupervision?.id_form_supervision || null, url_image: "prueba utl", userCreatedAt: user.id_users }, t);
-    return insertVisita;
-  }
-  async filterVisitas() {
-  }
-};
-VisitasService = __decorateClass$1([
-  injectable(),
-  __decorateParam$1(0, inject(VisitaRepository)),
-  __decorateParam$1(1, inject(FormSupervisionRepository))
-], VisitasService);
-
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (decorator(result)) || result;
-  return result;
-};
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 let VisitasController = class {
   constructor(visitasService) {
     this.visitasService = visitasService;
@@ -893,9 +1158,9 @@ let VisitasController = class {
     }, "Visitada creada correctamente.", true, "PIOAPP");
   }
 };
-VisitasController = __decorateClass([
+VisitasController = __decorateClass$2([
   injectable(),
-  __decorateParam(0, inject(VisitasService))
+  __decorateParam$1(0, inject(VisitasService))
 ], VisitasController);
 
 const CreateVisitaDto = yup.object({
@@ -944,11 +1209,66 @@ const visitasController = container.resolve(VisitasController);
 visitasRouter.use(authMiddleware);
 visitasRouter.post("/create", validateFields(CreateVisitaDto, fileConfigVisitaDto), visitasController.createVisita.bind(visitasController));
 
+var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
+var __decorateClass$1 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (decorator(result)) || result;
+  return result;
+};
+let JwtService = class {
+  constructor() {
+  }
+  async verifyJwtToken(data) {
+    const resultValidate = await verifyToken(data.tokenText);
+    if (!resultValidate) throw new Error("Error token no valido.");
+    return resultValidate;
+  }
+};
+JwtService = __decorateClass$1([
+  injectable()
+], JwtService);
+
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (decorator(result)) || result;
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+let JwtController = class {
+  constructor(jwtService) {
+    this.jwtService = jwtService;
+  }
+  async validJwt(req, res) {
+    await handleSend(res, async () => {
+      const result = await this.jwtService.verifyJwtToken(req.body);
+      return result;
+    }, "Token validado.");
+  }
+};
+JwtController = __decorateClass([
+  injectable(),
+  __decorateParam(0, inject(JwtService))
+], JwtController);
+
+const ValidJwtDto = yup.object({
+  tokenText: yup.string().required("el [tokenText] es un campo obligatorio.")
+});
+
+const jwtRouter = Router();
+const jwtController = container.resolve(JwtController);
+jwtRouter.post("/valid", validateFields(ValidJwtDto), jwtController.validJwt.bind(jwtController));
+
 const router = Router();
 router.use("/auth", authRouter);
 router.use("/tipo/visitas", tipoVisitasRouter);
 router.use("/tiendas/modulo", tiendasModuloRouter);
 router.use("/visitas", visitasRouter);
+router.use("/jwt", jwtRouter);
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   if (res.headersSent) return next(err);
