@@ -1,7 +1,5 @@
-import tEmpleadoRepository from "../../repositories/tEmpleadoRepository";
 import { injectable, inject } from "tsyringe";
 import { LoginDtoType } from "../../dtos/LoginDto"; 
-import UsersRepository from "../../repositories/UsersRepository";
 import { Transaction } from "sequelize";
 import CryptServices from "./CryptServices";
 import { generateToken } from "../../utils/Jwt";
@@ -13,10 +11,10 @@ import DetalleEmpleadoCootraguaViewRepository from "../../repositories/DetalleEm
 export default class AuthServices {
 
     constructor(
-        @inject(tEmpleadoRepository) private tEmpleadoRepo:tEmpleadoRepository,
+        // @inject(tEmpleadoRepository) private tEmpleadoRepo:tEmpleadoRepository,
         @inject(CryptServices) private cryptServices:CryptServices,
         @inject(UsersServices) private usersServices:UsersServices,
-        @inject(DetalleEmpleadoCootraguaViewRepository) private detalleEmpleadoCootraguaViewRepository:DetalleEmpleadoCootraguaViewRepository
+        @inject(DetalleEmpleadoCootraguaViewRepository) private detalleEmpleadoCootraguaViewRepository:DetalleEmpleadoCootraguaViewRepository,
     ) {}
 
     async validLogin(data:LoginDtoType, t:Transaction) : Promise<any | null> {

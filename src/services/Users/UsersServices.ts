@@ -20,7 +20,7 @@ export default class UsersServices {
         {
             id_users: empleado?.codEmpleado || null,
             codigo_user: empleado?.aliasCodigo || null,
-            id_rol: 1,
+            id_rol: empleado?.idRol || null,
             first_name: empleado?.nombreEmpleado || null,
             second_name: empleado?.segundoNombre || null,
             first_last_name: empleado?.apellidoEmpleado || null,

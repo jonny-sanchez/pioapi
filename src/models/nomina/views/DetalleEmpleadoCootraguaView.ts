@@ -66,6 +66,7 @@ class DetalleEmpleadoCootraguaView extends Model {
     public fecha_ingreso_str?: string;
     public codDepto?: number;
     public nomPuesto?: string;
+    public idRol?: number;
 }
 
 DetalleEmpleadoCootraguaView.init(
@@ -134,6 +135,7 @@ DetalleEmpleadoCootraguaView.init(
         fecha_ingreso_str: { type: DataTypes.STRING(30), allowNull: true },
         codDepto: { type: DataTypes.INTEGER, allowNull: true },
         nomPuesto: { type: DataTypes.STRING(64), allowNull: true },
+        idRol: { type: DataTypes.INTEGER, allowNull: false }
     },
     {
         sequelize: sequelizeInit('NOMINA'),
