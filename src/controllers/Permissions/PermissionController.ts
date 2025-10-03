@@ -14,7 +14,7 @@ export default class PermissionController {
     async findMenusByRol(req:RequestAuth, res:Response<JsonResponse<any[]>>) {
         await handleSend(res, async () => {
             const result = await this.resumenPermissionMenuViewRepository.getPermissionByRol(req.user?.id_rol ?? 0)
-            return result 
+            return result  
         }, "Permisos listados correctamente.")
     }
 
