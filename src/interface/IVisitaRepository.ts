@@ -8,4 +8,6 @@ export default interface IVisitaRepository {
 
     findByFilters(filters:any, raw:boolean):Promise<VisitaModel[]>
 
+    getAll(raw:boolean):Promise<VisitaModel[]>
+
 }

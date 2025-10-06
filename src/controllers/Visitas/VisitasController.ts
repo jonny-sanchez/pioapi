@@ -5,11 +5,15 @@ import { Response } from "express";
 import { handleSend } from "../../utils/HandlerFactory";
 import { Transaction } from "sequelize";
 import { CreateVisitaDtoType, CreateVisitaDtoTypeFiles } from "../../dtos/CreateVisitaDto";
+import VisitaRepository from "../../repositories/VisitaRepository";
 
 @injectable()
 export default class VisitasController {
 
-    constructor(@inject(VisitasService) private visitasService:VisitasService) {}
+    constructor(
+        @inject(VisitasService) private visitasService:VisitasService,
+        @inject(VisitaRepository) private visitaRepository:VisitaRepository 
+    ) {}
 
     async createVisita(req:RequestAuth, res:Response<JsonResponse<any>>) {
         await handleSend(res, async(t)=> {
@@ -21,6 +25,13 @@ export default class VisitasController {
             )
             return result
         }, 'Visitada creada correctamente.', true, 'PIOAPP')
+    }
+
+    async listAllVisitas(req:RequestAuth, res:Response<JsonResponse<any[]>>) {
+        await handleSend(res, async()=> {
+            const result = await this.visitaRepository.getAll()
+            return result
+        }, 'Visitas listadas correctamente.')
     }
 
 }

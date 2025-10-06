@@ -12,4 +12,6 @@ visitasRouter.use(authMiddleware)
 
 visitasRouter.post('/create', validateFields(CreateVisitaDto, fileConfigVisitaDto), visitasController.createVisita.bind(visitasController))
 
+visitasRouter.get('/list/all', visitasController.listAllVisitas.bind(visitasController))
+
 export default visitasRouter

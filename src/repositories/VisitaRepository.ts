@@ -17,4 +17,9 @@ export default class VisitaRepository implements IVisitaRepository {
         return result
     }
 
+    async getAll(raw: boolean = false): Promise<VisitaModel[]> {
+        const result = await VisitaModel.findAll({ raw: raw })
+        return result
+    }
+
 }
