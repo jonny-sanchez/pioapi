@@ -13,12 +13,16 @@ export const configDatabase = {
             host: ENV.DB_HOST as string,
             port: ENV.DB_PORT,
             dialect: ENV.DB_CONNECTION,
+            timezone: 'America/Guatemala',
             dialectOptions: {
+            //   useUTC: false,
               ssl: {
                 require: true,
                 rejectUnauthorized: false
-              }
-            }
+              },
+            //   options: `-c timezone=America/Guatemala`,
+            },
+            // logging: false,
         }
     },
     NOMINA: {
