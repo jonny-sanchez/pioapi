@@ -11,8 +11,8 @@ const rutasViewController = container.resolve(RutasViewController)
 
 rutasViewRouter.use(authMiddleware)
 
-rutasViewRouter.get('/list', validateFields(ListRutasFilterDto), rutasViewController.listAllByCodigoEmpleado.bind(rutasViewController))
+rutasViewRouter.get('/list', validateFields(ListRutasFilterDto, null, true), rutasViewController.listAllByCodigoEmpleado.bind(rutasViewController))
 
-rutasViewRouter.get('/tiendas/rutas', validateFields(ListTiendasDateDto), rutasViewController.listTiendasByFecha.bind(rutasViewController))
+rutasViewRouter.get('/tiendas/rutas', validateFields(ListTiendasDateDto, null, true), rutasViewController.listTiendasByFecha.bind(rutasViewController))
 
 export default rutasViewRouter
