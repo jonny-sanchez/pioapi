@@ -5,6 +5,7 @@ import tiendasModuloRouter from "./Tiendas/TiendasModuloRouter";
 import visitasRouter from "./Visitas/VisitasRouter";
 import jwtRouter from "./Auth/JwtRouter";
 import permissionRouter from "./Permissions/PermissionRouter";
+import rutasViewRouter from "./Rutas/RutasViewRouter";
 
 const router = Router()
 
@@ -19,6 +20,8 @@ router.use('/visitas', visitasRouter)
 router.use('/jwt', jwtRouter)
 
 router.use('/permissions', permissionRouter)
+
+router.use('/rutas/view', rutasViewRouter)
 
 // router.use(authMiddleware)
 
