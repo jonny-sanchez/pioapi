@@ -5,6 +5,8 @@ import tiendasModuloRouter from "./Tiendas/TiendasModuloRouter";
 import visitasRouter from "./Visitas/VisitasRouter";
 import jwtRouter from "./Auth/JwtRouter";
 import permissionRouter from "./Permissions/PermissionRouter";
+import ultimosPeriodosPagadosRouter from "./Periodos/UltimosPeriodosPagadosRouter";
+import ResumenNominaRouter from "./Nomina/ResumenNominaRouter";
 
 const router = Router()
 
@@ -19,6 +21,10 @@ router.use('/visitas', visitasRouter)
 router.use('/jwt', jwtRouter)
 
 router.use('/permissions', permissionRouter)
+
+router.use('/periodos', ultimosPeriodosPagadosRouter)
+
+router.use('/nomina/resumen', ResumenNominaRouter)
 
 // router.use(authMiddleware)
 
