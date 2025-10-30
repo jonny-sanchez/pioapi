@@ -8,6 +8,7 @@ import permissionRouter from "./Permissions/PermissionRouter";
 import rutasViewRouter from "./Rutas/RutasViewRouter";
 import ultimosPeriodosPagadosRouter from "./Periodos/UltimosPeriodosPagadosRouter";
 import ResumenNominaRouter from "./Nomina/ResumenNominaRouter";
+import articulosRutaRouter from "./Rutas/ArticulosRutaRouter";
 
 const router = Router()
 
@@ -28,6 +29,8 @@ router.use('/rutas/view', rutasViewRouter)
 router.use('/periodos', ultimosPeriodosPagadosRouter)
 
 router.use('/nomina/resumen', ResumenNominaRouter)
+
+router.use('/articulos/ruta', articulosRutaRouter)
 
 // router.use(authMiddleware)
 
