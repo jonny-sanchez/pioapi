@@ -29,4 +29,9 @@ export default class RutasViewRepository implements IRutasViewRepository {
         return result
     }
 
+    async findRutaByIdPedidoAndSerie(id_pedido: number, serie: string, raw: boolean = false): Promise<RutasView | null> {
+        const result = await RutasView.findOne({ where: { id_pedido: id_pedido, serie: serie }, raw })
+        if(!result) throw new Error(`Error no se encontro ninguna ruta con este pedido: ${id_pedido} y serie ${serie}.`);
+        return result
+    }
 }
