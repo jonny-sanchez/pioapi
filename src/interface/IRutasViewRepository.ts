@@ -8,4 +8,6 @@ export default interface IRutasViewRepository {
 
     getTiendasByDate(date:string, codigo_empleado_piloto:number, raw:boolean) : Promise<RutasView[]>
 
+    findRutaByIdPedidoAndSerie(id_pedido:number, serie:string, raw:boolean) : Promise<RutasView | null>
+
 }
