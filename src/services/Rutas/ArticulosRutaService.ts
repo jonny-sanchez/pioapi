@@ -21,7 +21,7 @@ export default class ArticulosRutaService {
         const resultArticulosRecepccion = await this.articulosRutaViewRepository.getAllByPedidoAndSerie(
             data.id_pedido,
             data.serie
-        )
+        ) 
 
         const resultJsonRecepccion = {
             cabecera: ruta,
