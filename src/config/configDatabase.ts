@@ -15,14 +15,11 @@ export const configDatabase = {
             dialect: ENV.DB_CONNECTION,
             timezone: 'America/Guatemala',
             dialectOptions: {
-            //   useUTC: false,
               ssl: {
                 require: true,
                 rejectUnauthorized: false
               },
-            //   options: `-c timezone=America/Guatemala`,
             },
-            // logging: false,
         }
     },
     NOMINA: {

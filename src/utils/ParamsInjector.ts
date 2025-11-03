@@ -20,14 +20,3 @@ export const injectParamsToBody = (req: Request): void => {
         };
     }
 };
-
-/**
- * Verifica si existen parámetros en la request
- * @param req - Request object de Express
- * @returns true si hay route params o query params
- */
-export const hasRequestParams = (req: Request): boolean => {
-    const hasParams = req.params && Object.keys(req.params).length > 0;
-    const hasQuery = req.query && Object.keys(req.query).length > 0;
-    return hasParams || hasQuery;
-};

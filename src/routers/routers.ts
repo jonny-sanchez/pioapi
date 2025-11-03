@@ -5,10 +5,10 @@ import tiendasModuloRouter from "./Tiendas/TiendasModuloRouter";
 import visitasRouter from "./Visitas/VisitasRouter";
 import jwtRouter from "./Auth/JwtRouter";
 import permissionRouter from "./Permissions/PermissionRouter";
-// import rutasViewRouter from "./Rutas/RutasViewRouter";
-import periodoRouter from "./Nomina/PeriodoRouter";
-import firmaBoletaRouter from "./Nomina/FirmaBoletaRouter";
-import boletaConsultaRouter from "./Nomina/BoletaConsultaRouter";
+import rutasViewRouter from "./Rutas/RutasViewRouter";
+import ultimosPeriodosPagadosRouter from "./Periodos/UltimosPeriodosPagadosRouter";
+import ResumenNominaRouter from "./Nomina/ResumenNominaRouter";
+import articulosRutaRouter from "./Rutas/ArticulosRutaRouter";
 
 const router = Router()
 
@@ -24,13 +24,17 @@ router.use('/jwt', jwtRouter)
 
 router.use('/permissions', permissionRouter)
 
-// router.use('/rutas/view', rutasViewRouter)
+router.use('/rutas/view', rutasViewRouter)
+
+router.use('/periodos', ultimosPeriodosPagadosRouter)
 
 router.use('/nomina/periodos', periodoRouter)
 
 router.use('/nomina/firma-boleta', firmaBoletaRouter)
 
 router.use('/nomina/boleta', boletaConsultaRouter)
+
+router.use('/articulos/ruta', articulosRutaRouter)
 
 // router.use(authMiddleware)
 

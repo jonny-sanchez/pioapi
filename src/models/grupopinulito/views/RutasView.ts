@@ -8,7 +8,7 @@ class RutasView extends Model {
     public id_pedido!: number;
     public empresa?: string;
     public tienda?: string;
-    public fecha_entrega?: Date;
+    public fecha_entrega?: Date | string;
     public piloto?: string;
     public no_ruta?: number;
     public nombre_ruta?: string;
@@ -17,6 +17,9 @@ class RutasView extends Model {
     public name_tipo_entrega!: string;
     public tienda_nombre?: string;
     public tienda_direccion?: string;
+    public serie?: string;
+    public codigo_empleado_piloto?: number;
+    public recepccionada?: number;
 }
 
 RutasView.init(
@@ -34,6 +37,9 @@ RutasView.init(
         name_tipo_entrega: { type: DataTypes.STRING(7), allowNull: false },
         tienda_nombre: { type: DataTypes.STRING(256), allowNull: true },
         tienda_direccion: { type: DataTypes.STRING(512), allowNull: true },
+        serie: { type: DataTypes.STRING(100), allowNull: true },
+        codigo_empleado_piloto: { type: DataTypes.INTEGER, allowNull: true },
+        recepccionada: { type: DataTypes.INTEGER, allowNull: true }
     },
     {
         sequelize: sequelizeInit('GRUPOPINULITO'),

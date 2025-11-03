@@ -25,6 +25,7 @@ export interface JsonResponse<T = any> {
     data?: T | null;
 }
 
-export interface RequestAuth extends Request{
-    user?: userToken | null | undefined
+export interface RequestAuth<T = any> extends Request{
+    user?: userToken | null | undefined;
+    body: T
 }
