@@ -28,7 +28,11 @@ router.use('/rutas/view', rutasViewRouter)
 
 router.use('/periodos', ultimosPeriodosPagadosRouter)
 
-router.use('/nomina/resumen', ResumenNominaRouter)
+router.use('/nomina/periodos', periodoRouter)
+
+router.use('/nomina/firma-boleta', firmaBoletaRouter)
+
+router.use('/nomina/boleta', boletaConsultaRouter)
 
 router.use('/articulos/ruta', articulosRutaRouter)
 
