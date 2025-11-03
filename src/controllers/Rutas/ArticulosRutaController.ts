@@ -17,7 +17,10 @@ export default class ArticulosRutaController {
 
     async listArticulosRuta(req:RequestAuth<PedidosRutaDtoType>, res:Response<JsonResponse<any[]>>) {
         await handleSend(res, async() => {
-            const result = await this.articulosRutaViewRepository.getAllByPedido(req.body.id_pedido)
+            const result = await this.articulosRutaViewRepository.getAllByPedidoAndSerie(
+                req.body.id_pedido,
+                req.body.serie
+            )
             return result
         }, "Articulos listados correctamente.")
     }
