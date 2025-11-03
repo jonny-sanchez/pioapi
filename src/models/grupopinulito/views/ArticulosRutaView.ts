@@ -9,6 +9,7 @@ class ArticulosRutaView extends Model {
     public nombre_articulo?: string;
     public description?: string;
     public cantidad?: number;
+    public serie?: string;
 }
 
 ArticulosRutaView.init(
@@ -19,6 +20,7 @@ ArticulosRutaView.init(
         nombre_articulo: { type: DataTypes.STRING(500), allowNull: true },
         description: { type: DataTypes.STRING(500), allowNull: true },
         cantidad: { type: DataTypes.FLOAT, allowNull: true },
+        serie: { type: DataTypes.STRING(100), allowNull: true }
     },
     {
         sequelize: sequelizeInit('GRUPOPINULITO'),

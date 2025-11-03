@@ -11,8 +11,16 @@ const articulosRutaController = container.resolve(ArticulosRutaController)
 
 articulosRutaRouter.use(authMiddleware)
 
-articulosRutaRouter.get('/list', validateFields(PedidosRutaDto, null, true), articulosRutaController.listArticulosRuta.bind(articulosRutaController))
+articulosRutaRouter.get(
+    '/list', 
+    validateFields(PedidosRutaDto, null, true), 
+    articulosRutaController.listArticulosRuta.bind(articulosRutaController)
+)
 
-articulosRutaRouter.get('/list/POS', validateFields(ListArticulosRutaDto, null, true), articulosRutaController.listEntradaArticulosTiendaPOS.bind(articulosRutaController))
+articulosRutaRouter.get(
+    '/list/POS', 
+    validateFields(ListArticulosRutaDto, null, true), 
+    articulosRutaController.listEntradaArticulosTiendaPOS.bind(articulosRutaController)
+)
 
 export default articulosRutaRouter
