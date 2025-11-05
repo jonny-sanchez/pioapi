@@ -3,6 +3,8 @@ import tEntradaInventarioModel from "../models/pdv/tables/tEntradaInventarioMode
 
 export default interface IEntradaInventarioRepository {
 
-    create(data:Partial<tEntradaInventarioModel>, t:Transaction | null, error:boolean) : Promise<tEntradaInventarioModel | null>;
+    create(data:Partial<tEntradaInventarioModel>, t:Transaction | null, error:boolean, raw:boolean) : Promise<tEntradaInventarioModel | null>;
+
+    findEntradaInventario(filters:Partial<tEntradaInventarioModel>, error:boolean, raw:boolean) : Promise<tEntradaInventarioModel | null>;
 
 }

@@ -1,46 +1,44 @@
 import { inject, injectable } from "tsyringe";
-import EntradaInventarioRepository from "../../repositories/EntradaInventarioRepository";
-import EntradaInventarioDetalleRepository from "../../repositories/EntradaInventarioDetalleRepository";
 import { saveRecepcionDtoType } from "../../dtos/recepciones/SaveRecepcionDto";
 import { userToken } from "../../types/ResponseTypes";
-import { Sequelize, Transaction } from "sequelize";
+import { Transaction } from "sequelize";
+import EntradaPdvService from "./EntradaPdv/EntradaPdvService";
+import { SERIES_AVICOLA, SERIES_INSUMOS } from "../../utils/Recepcion/RecepcionUtils";
+import SapInsumosService from "./SapInsumos/SapInsumosService";
+import { clearTextAndUpperCase } from "../../utils/Cadenas/TextUtil";
+import SapPolloService from "./SapPollo/SapPolloService";
 
 @injectable()
 export default class RecepcionesServices {
 
     constructor(
-        @inject(EntradaInventarioRepository) private entradaInventarioRepository:EntradaInventarioRepository,
-        @inject(EntradaInventarioDetalleRepository) private entradaInventarioDetalleRepository:EntradaInventarioDetalleRepository
+        @inject(EntradaPdvService) private entradaPdvService:EntradaPdvService,
+        @inject(SapInsumosService) private sapInsumosService:SapInsumosService,
+        @inject(SapPolloService) private sapPolloService:SapPolloService
     ) {}
 
-    async saveRecepcionService(data:saveRecepcionDtoType, user:userToken, t:Transaction) : Promise<any> {
-        const { cabecera, detalle } = data
+    async saveRecepcionService(data:saveRecepcionDtoType, user:userToken) : Promise<any> {
 
-        const createEncabezadoEntradaInventario = await this.entradaInventarioRepository.create({
-            serie: cabecera.serie,
-            numero: cabecera.id_pedido,
-            empresa: cabecera.empresa,
-            tienda: cabecera.tienda,
-            anulado: false,
-            fecha: Sequelize.literal('GETDATE()')
-        }, t)
+        this.entradaPdvService.validSerieEntrada(data)
+        
+        const entradaEncabezadoPdv = await this.entradaPdvService.createEntradas(data)
 
-        const idEntradaInventario:number|null = createEncabezadoEntradaInventario?.idEntradaInventario || null
+        const isInsumo = SERIES_INSUMOS.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
 
-        if(!idEntradaInventario) throw new Error("Error al obtener el [idEntradaInventario]");
+        const isPollo = SERIES_AVICOLA.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
+
+        if(isInsumo) {
+            const getInsumoRecepcionado = await this.sapInsumosService.getInsumosForUploadSap(entradaEncabezadoPdv)
+            return getInsumoRecepcionado
+        }
+
+        if(isPollo) {
+            const getPolloRecepcionado = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
+            return getPolloRecepcionado
+        }
 
 
-        await Promise.all(
-            detalle.map(el => this.entradaInventarioDetalleRepository.create({
-                idEntradaInventario: idEntradaInventario,
-                itemCode: el.codigo_articulo,
-                uomCode: el.description,
-                quantity: el.cantidad,
-                cantidadInventario: 1
-            }, t))
-        )
-
-        return createEncabezadoEntradaInventario
+        throw new Error("Error no se carga la informacion de recepciones a SAP porque no se encontro una serie valida.");
     }
 
 }

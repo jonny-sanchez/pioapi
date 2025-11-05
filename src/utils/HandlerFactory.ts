@@ -9,7 +9,8 @@ export async function handleSend(
     messageSuccess:string | null = '',
     isWithRollBack:boolean = false,
     connection:ConnectionName = DEFAULT_CONNECTION,
-    isFile:boolean = false
+    isFile:boolean = false,
+    commitController = false
 ){
     
     let t:Transaction | null | undefined
@@ -22,7 +23,7 @@ export async function handleSend(
 
         result = await callback(t)
 
-        if(isWithRollBack) t && await t.commit()
+        if(isWithRollBack && !commitController) t && await t.commit()
 
         return isFile ? result : res.status(200).json({ message: messageSuccess, status: true, data: result })
   

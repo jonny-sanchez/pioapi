@@ -29,7 +29,13 @@ export const configDatabase = {
         options: {
             host: ENV.DB_SECOND_HOST as string,
             port: ENV.DB_SECOND_PORT,
-            dialect: ENV.DB_SECOND_CONNECTION
+            dialect: ENV.DB_SECOND_CONNECTION,
+            dialectOptions: {
+              options: {
+                encrypt: true,
+                requestTimeout: 60000
+              },
+            }
         }
     },
     GRUPOPINULITO: {
@@ -39,7 +45,13 @@ export const configDatabase = {
         options: {
             host: ENV.DB_THIRD_HOST as string,
             port: ENV.DB_THIRD_PORT,
-            dialect: ENV.DB_THIRD_CONNECTION
+            dialect: ENV.DB_THIRD_CONNECTION,
+            dialectOptions: {
+              options: {
+                encrypt: true,
+                requestTimeout: 60000
+              },
+            }
         }
     },
     PDV: {
@@ -49,7 +61,13 @@ export const configDatabase = {
         options: {
             host: ENV.DB_FOURTH_HOST as string,
             port: ENV.DB_FOURTH_PORT,
-            dialect: ENV.DB_FOURTH_CONNECTION
+            dialect: ENV.DB_FOURTH_CONNECTION,
+            dialectOptions: {
+              options: {
+                encrypt: true,
+                requestTimeout: 60000
+              },
+            }
         }
     }
 }
