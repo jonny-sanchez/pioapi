@@ -38,8 +38,8 @@ export default class SapPolloService {
         // const resultSapUploadPollo = await AJAX(this.URL_SKD_ENTRY_AVICOLA, 'POST', null, object)
         const resultSapUploadPollo = {
             resultado: true,
-            llave: 'fdsf',
-            llave2: 'fdsf'
+            llave: 86792,
+            llave2: 73196
         }
         return resultSapUploadPollo
     }

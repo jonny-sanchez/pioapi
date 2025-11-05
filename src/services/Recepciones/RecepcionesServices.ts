@@ -27,18 +27,20 @@ export default class RecepcionesServices {
 
         const isPollo = SERIES_AVICOLA.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
 
-        if(isInsumo) {
-            const getInsumoRecepcionado = await this.sapInsumosService.getInsumosForUploadSap(entradaEncabezadoPdv)
-            return getInsumoRecepcionado
-        }
+        return entradaEncabezadoPdv
 
-        if(isPollo) {
-            const getPolloRecepcionado = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
-            return getPolloRecepcionado
-        }
+        // if(isInsumo) {
+        //     const getInsumoRecepcionado = await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv)
+        //     return getInsumoRecepcionado
+        // }
+
+        // if(isPollo) {
+        //     const getPolloRecepcionado = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
+        //     return getPolloRecepcionado
+        // }
 
 
-        throw new Error("Error no se carga la informacion de recepciones a SAP porque no se encontro una serie valida.");
+        // throw new Error("Error no se carga la informacion de recepciones a SAP porque no se encontro una serie valida.");
     }
 
 }

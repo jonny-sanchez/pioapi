@@ -21,4 +21,8 @@ export default class EntradaInventarioRepository implements IEntradaInventarioRe
         return result
     }
 
+    // async updateByIdEntradaInventario(idEntradaInventario: number, data: Partial<tEntradaInventarioModel>, error: boolean): Promise<number> {
+    //     const [] = await tEntra
+    // }
+
 }

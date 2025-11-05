@@ -1,7 +1,7 @@
 type ResponseEntryArticulosSapType = {
     resultado: boolean;
-    llave: string;
-    llave2: string;
+    llave: number;
+    llave2: number;
 }
 
 export default ResponseEntryArticulosSapType

@@ -2,6 +2,7 @@ import { inject, injectable } from "tsyringe";
 import EncabezadoInsumosRecepcionadosRepository from "../../../repositories/EncabezadoInsumosRecepcionadosRepository";
 import tEntradaInventarioModel from "../../../models/pdv/tables/tEntradaInventarioModel";
 import DetalleInsumosRecepcionRepository from "../../../repositories/DetalleInsumosRecepcionRepository";
+import ResponseEntryArticulosSapType from "../../../types/Recepciones/ResponseEntryArticulosSapType";
 
 @injectable()
 export default class SapInsumosService {
@@ -26,6 +27,17 @@ export default class SapInsumosService {
             empresa: "00001",
             productos: detalleInsumos
         }
+    }
+
+    async postUploadSapInsumos(data:tEntradaInventarioModel | null):Promise<ResponseEntryArticulosSapType> {
+        const object = await this.getInsumosForUploadSap(data)
+        
+        const resultSapUploadInsumos = {
+            resultado: true,
+            llave: 86792,
+            llave2: 73196
+        }
+        return resultSapUploadInsumos
     }
 
 }
