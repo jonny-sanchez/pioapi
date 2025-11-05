@@ -4,7 +4,7 @@ import { sequelizeInit } from "../../../config/database";
 
 class tEntradaInventarioModel extends Model {
     public idEntradaInventario!: number;
-    public serie!: string;
+    public serie?: string;
     public numero!: number;
     public empresa!: string;
     public tienda!: string;
@@ -57,7 +57,8 @@ tEntradaInventarioModel.init(
     },
     {
         sequelize: sequelizeInit('PDV'),
-        tableName: 'tEntradaInventarioPrueba',
+        // tableName: 'tEntradaInventarioPrueba',
+        tableName: 'tEntradaInventario',
         timestamps: false
     }
 )

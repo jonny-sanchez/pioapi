@@ -4,7 +4,6 @@ import { JsonResponse, RequestAuth, userToken } from "../../types/ResponseTypes"
 import { Response } from "express";
 import { saveRecepcionDtoType } from "../../dtos/recepciones/SaveRecepcionDto";
 import RecepcionesServices from "../../services/Recepciones/RecepcionesServices";
-import { Transaction } from "sequelize";
 
 @injectable()
 export default class RecepcionesController {
@@ -14,14 +13,13 @@ export default class RecepcionesController {
     ) {}
 
     async uploadRecepccionesClient(req:RequestAuth<saveRecepcionDtoType>, res:Response<JsonResponse<any>>) {
-        await handleSend(res, async(t) => {
+        await handleSend(res, async() => {
             const result = await this.recepcionesServices.saveRecepcionService(
                 req.body,
-                req.user as userToken,
-                t as Transaction
+                req.user as userToken
             )
             return result
-        }, 'Recepccion creada correctamente.', true, 'PDV')
+        }, 'Recepccion creada correctamente.')
     }
 
 }

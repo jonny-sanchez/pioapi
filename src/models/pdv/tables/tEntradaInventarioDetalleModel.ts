@@ -41,7 +41,8 @@ tEntradaInventarioDetalleModel.init(
     },
     {
         sequelize: sequelizeInit('PDV'),
-        tableName: 'tEntradaInventarioDetallePrueba',
+        // tableName: 'tEntradaInventarioDetallePrueba',
+        tableName: 'tEntradaInventarioDetalle',
         timestamps: false
     }
 )
