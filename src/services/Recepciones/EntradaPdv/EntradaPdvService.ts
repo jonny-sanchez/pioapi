@@ -7,6 +7,7 @@ import tEntradaInventarioModel from "../../../models/pdv/tables/tEntradaInventar
 import { SERIES_AVICOLA, SERIES_INSUMOS } from "../../../utils/Recepcion/RecepcionUtils";
 import { handleTransaction } from "../../../utils/DB/TransactionsHelpers";
 import { clearTextAndUpperCase } from "../../../utils/Cadenas/TextUtil";
+import ResponseEntryArticulosSapType from "../../../types/Recepciones/ResponseEntryArticulosSapType";
 
 @injectable()
 export default class EntradaPdvService {
@@ -72,6 +73,25 @@ export default class EntradaPdvService {
         }, 'PDV')
 
         return result
+    }
+
+    async updateEncabezadoByIdEntradaInventario(entrada:tEntradaInventarioModel, responseSap:ResponseEntryArticulosSapType) : Promise<number> {
+
+        const result:number = await handleTransaction(async(t) => {
+            const updateCount:number = await this.entradaInventarioRepository.updateByIdEntradaInventario(
+                entrada.idEntradaInventario, 
+                {
+                    docEntry: responseSap.llave,
+                    docNum:responseSap.llave2
+                }, 
+                true, 
+                t
+            ) 
+            return updateCount
+        }, 'PDV')
+
+        return result
+
     }
 
 }

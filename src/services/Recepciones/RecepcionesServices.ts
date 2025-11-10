@@ -7,6 +7,8 @@ import { SERIES_AVICOLA, SERIES_INSUMOS } from "../../utils/Recepcion/RecepcionU
 import SapInsumosService from "./SapInsumos/SapInsumosService";
 import { clearTextAndUpperCase } from "../../utils/Cadenas/TextUtil";
 import SapPolloService from "./SapPollo/SapPolloService";
+import ResponseEntryArticulosSapType from "../../types/Recepciones/ResponseEntryArticulosSapType";
+import tEntradaInventarioModel from "../../models/pdv/tables/tEntradaInventarioModel";
 
 @injectable()
 export default class RecepcionesServices {
@@ -19,28 +21,26 @@ export default class RecepcionesServices {
 
     async saveRecepcionService(data:saveRecepcionDtoType, user:userToken) : Promise<any> {
 
+        let responseSapSdk:ResponseEntryArticulosSapType|null = null
+
         this.entradaPdvService.validSerieEntrada(data)
         
-        const entradaEncabezadoPdv = await this.entradaPdvService.createEntradas(data)
+        const entradaEncabezadoPdv:tEntradaInventarioModel = await this.entradaPdvService.createEntradas(data) as tEntradaInventarioModel
 
         const isInsumo = SERIES_INSUMOS.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
 
         const isPollo = SERIES_AVICOLA.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
 
-        return entradaEncabezadoPdv
+        if(isInsumo) responseSapSdk = await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv)
 
-        // if(isInsumo) {
-        //     const getInsumoRecepcionado = await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv)
-        //     return getInsumoRecepcionado
-        // }
+        if(isPollo) responseSapSdk = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
 
-        // if(isPollo) {
-        //     const getPolloRecepcionado = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
-        //     return getPolloRecepcionado
-        // }
+        await this.entradaPdvService.updateEncabezadoByIdEntradaInventario(
+            entradaEncabezadoPdv, 
+            responseSapSdk as ResponseEntryArticulosSapType
+        )
 
-
-        // throw new Error("Error no se carga la informacion de recepciones a SAP porque no se encontro una serie valida.");
+        return responseSapSdk
     }
 
 }

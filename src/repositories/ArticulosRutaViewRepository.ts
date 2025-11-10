@@ -11,7 +11,11 @@ export default class ArticulosRutaViewRepository implements IArticulosRutaViewRe
     }
 
     async getAllByPedidoAndSerie(id_pedido: number, serie: string, raw: boolean = false): Promise<ArticulosRutaView[]> {
-        const result = await ArticulosRutaView.findAll({ where: { id_pedido: id_pedido, serie: serie }, raw })
+        const result = await ArticulosRutaView.findAll({ 
+            where: { id_pedido: id_pedido, serie: serie }, 
+            order: [ [ 'codigo_articulo', 'DESC' ] ],
+            raw 
+        })
         return result
     }
 

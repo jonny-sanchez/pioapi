@@ -4,6 +4,7 @@ import tEntradaInventarioModel from "../../../models/pdv/tables/tEntradaInventar
 import PolloDetalleRecepcionadoRepository from "../../../repositories/PolloDetalleRecepcionadoRepository";
 import { AJAX } from "../../../utils/HttpHelper";
 import ResponseEntryArticulosSapType from "../../../types/Recepciones/ResponseEntryArticulosSapType";
+import { validResponseSapRecepcion } from "../../../utils/Recepcion/RecepcionUtils";
 
 @injectable()
 export default class SapPolloService {
@@ -15,7 +16,7 @@ export default class SapPolloService {
         @inject(PolloDetalleRecepcionadoRepository) private polloDetalleRecepcionadoRepository:PolloDetalleRecepcionadoRepository
     ) {}
 
-    async getPolloForUploadSap(data:tEntradaInventarioModel | null):Promise<any> {
+    async getPolloForUploadSap(data:tEntradaInventarioModel):Promise<any> {
         const encabezadoPollo = await this.polloEncabezadoRecepcionRepository.findEncabezadoByIdEntradaInventario(
             data?.idEntradaInventario ?? 0,
             true,
@@ -33,15 +34,14 @@ export default class SapPolloService {
         }
     }
 
-    async postUploadSapPollo(data:tEntradaInventarioModel | null):Promise<ResponseEntryArticulosSapType> {
+    async postUploadSapPollo(data:tEntradaInventarioModel):Promise<ResponseEntryArticulosSapType> {
         const object = await this.getPolloForUploadSap(data)
-        // const resultSapUploadPollo = await AJAX(this.URL_SKD_ENTRY_AVICOLA, 'POST', null, object)
-        const resultSapUploadPollo = {
-            resultado: true,
-            llave: 86792,
-            llave2: 73196
-        }
-        return resultSapUploadPollo
+
+        const responseSKDPollo = await AJAX(this.URL_SKD_ENTRY_AVICOLA, 'POST', null, object)
+
+        validResponseSapRecepcion(responseSKDPollo)
+
+        return responseSKDPollo
     }
 
 }

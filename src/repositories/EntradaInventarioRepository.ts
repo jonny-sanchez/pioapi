@@ -21,8 +21,15 @@ export default class EntradaInventarioRepository implements IEntradaInventarioRe
         return result
     }
 
-    // async updateByIdEntradaInventario(idEntradaInventario: number, data: Partial<tEntradaInventarioModel>, error: boolean): Promise<number> {
-    //     const [] = await tEntra
-    // }
+    async updateByIdEntradaInventario(idEntradaInventario: number, data: Partial<tEntradaInventarioModel>, error: boolean = true, t: Transaction | null = null): Promise<number> {
+        const [filasActualizadas] = await tEntradaInventarioModel.update(data, {
+            where: {
+                idEntradaInventario: idEntradaInventario
+            },
+            transaction: t
+        })
+        if(filasActualizadas <= 0 && error) throw new Error(`Error al editar la entrada con idEntradaInventario -> ${idEntradaInventario}`);
+        return filasActualizadas
+    }
 
 }

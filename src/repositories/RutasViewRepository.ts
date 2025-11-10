@@ -12,7 +12,14 @@ export default class RutasViewRepository implements IRutasViewRepository {
     }
 
     async getAllRutasByFilters(filters: Partial<RutasView>, raw: boolean = false): Promise<RutasView[]> {
-        const result = await RutasView.findAll({ where: { ...filters }, raw })
+        const result = await RutasView.findAll({ 
+            where: { ...filters }, 
+            order: [ 
+                [ 'id_pedido', 'DESC' ],
+                [ 'serie', 'DESC' ] 
+            ],
+            raw 
+        })
         return result
     }
 

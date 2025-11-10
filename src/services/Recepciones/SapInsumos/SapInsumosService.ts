@@ -3,16 +3,23 @@ import EncabezadoInsumosRecepcionadosRepository from "../../../repositories/Enca
 import tEntradaInventarioModel from "../../../models/pdv/tables/tEntradaInventarioModel";
 import DetalleInsumosRecepcionRepository from "../../../repositories/DetalleInsumosRecepcionRepository";
 import ResponseEntryArticulosSapType from "../../../types/Recepciones/ResponseEntryArticulosSapType";
+import SolicitudInsumosService from "../../SolicitudInsumos/SolicitudInsumosService";
+import { validResponseSapRecepcion } from "../../../utils/Recepcion/RecepcionUtils";
+import { AJAX } from "../../../utils/HttpHelper";
 
 @injectable()
 export default class SapInsumosService {
 
+    private URL_SKD_TRANSFER_INSUMOS:string = 'http://110.238.64.185:5064/SolicitudSupervisorTiendaPos'
+    private URL_SKD_ENTRY_INSUMOS:string = 'http://110.238.64.185:5064/EntradaMercaderiaPollo'
+
     constructor(
         @inject(EncabezadoInsumosRecepcionadosRepository) private encabezadoInsumosRecepcionadosRepository:EncabezadoInsumosRecepcionadosRepository,
-        @inject(DetalleInsumosRecepcionRepository) private detalleInsumosRecepcionRepository:DetalleInsumosRecepcionRepository
+        @inject(DetalleInsumosRecepcionRepository) private detalleInsumosRecepcionRepository:DetalleInsumosRecepcionRepository,
+        @inject(SolicitudInsumosService) private solicitudInsumosService:SolicitudInsumosService
     ) {}
 
-    async getInsumosForUploadSap(data:tEntradaInventarioModel | null):Promise<any> {
+    async getInsumosForUploadSap(data:tEntradaInventarioModel):Promise<any> {
         const encabezadoInsumos = await this.encabezadoInsumosRecepcionadosRepository.findEncabezadoBySerieAndIdEntradaInventario(
             data?.serie ?? '',
             data?.idEntradaInventario ?? 0,
@@ -29,15 +36,27 @@ export default class SapInsumosService {
         }
     }
 
-    async postUploadSapInsumos(data:tEntradaInventarioModel | null):Promise<ResponseEntryArticulosSapType> {
-        const object = await this.getInsumosForUploadSap(data)
+    async postUploadSapInsumos(data:tEntradaInventarioModel):Promise<ResponseEntryArticulosSapType> {
+        const companysEntry = ["00002", "00003", "00004", "00005", "00007"]
+
+        let object = await this.getInsumosForUploadSap(data)
         
-        const resultSapUploadInsumos = {
-            resultado: true,
-            llave: 86792,
-            llave2: 73196
-        }
-        return resultSapUploadInsumos
+        const responseSKDTransfer:ResponseEntryArticulosSapType = await AJAX(this.URL_SKD_TRANSFER_INSUMOS, 'POST', null, object)
+
+        validResponseSapRecepcion(responseSKDTransfer)
+
+        await this.solicitudInsumosService.updateInsumoPdv(data, responseSKDTransfer)
+
+        if(!companysEntry.includes(data.empresa)) return responseSKDTransfer
+
+        object = { ...object, empresa: data.empresa, cardCode: 'PG00007' }
+
+        const responseSKDEntry:ResponseEntryArticulosSapType = await AJAX(this.URL_SKD_ENTRY_INSUMOS, 'POST', null, object)
+
+        validResponseSapRecepcion(responseSKDEntry)
+
+        return responseSKDEntry
+
     }
 
 }
