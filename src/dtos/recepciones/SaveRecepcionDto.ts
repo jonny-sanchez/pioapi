@@ -4,8 +4,8 @@ export const saveRecepcionDto = yup.object({
     cabecera: yup.object().shape({
         id_pedido: yup.number().required("El [id_pedido] es un campo obligatorio."),
         serie: yup.string().required("La [serie] es un campo obligatorio."),
-        empresa: yup.string().length(5).required("La [empresa] es un campo obligatorio y debe tener 5 caracteres."),
-        tienda: yup.string().length(5).required("La [tienda] es un campo obligatorio y debe tener 5 caracteres."),
+        empresa: yup.string().required("La [empresa] es un campo obligatorio y debe tener 5 caracteres."),
+        tienda: yup.string().required("La [tienda] es un campo obligatorio y debe tener 5 caracteres."),
     }).required("El objeto [cabecera] es requerido."),
 
     detalle: yup.array().of(

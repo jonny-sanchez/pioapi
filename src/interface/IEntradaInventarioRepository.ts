@@ -7,6 +7,6 @@ export default interface IEntradaInventarioRepository {
 
     findEntradaInventario(filters:Partial<tEntradaInventarioModel>, error:boolean, raw:boolean) : Promise<tEntradaInventarioModel | null>;
 
-    // updateByIdEntradaInventario(idEntradaInventario:number ,data:Partial<tEntradaInventarioModel>, error:boolean) : Promise<number>;
+    updateByIdEntradaInventario(idEntradaInventario:number ,data:Partial<tEntradaInventarioModel>, error:boolean, t:Transaction | null) : Promise<number>;
 
 }
