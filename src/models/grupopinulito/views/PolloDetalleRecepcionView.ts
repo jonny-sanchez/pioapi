@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import { sequelizeInit } from "../../../config/database";
 
 class PolloDetalleRecepcionView extends Model {
-    public id?: number;
+    // public id?: number;
     public SkuEqv?: string;
     public ItemCode!: string;
     public itemName?: string;
@@ -13,18 +13,20 @@ class PolloDetalleRecepcionView extends Model {
 
 PolloDetalleRecepcionView.init(
     {
-        id: {
-            type: DataTypes.BIGINT,
+        // id: {
+        //     type: DataTypes.BIGINT,
+        //     allowNull: true,
+        //     primaryKey: true
+        // },
+        SkuEqv: {
+            type: DataTypes.STRING(25),
             allowNull: true,
             primaryKey: true
         },
-        SkuEqv: {
-            type: DataTypes.STRING(25),
-            allowNull: true
-        },
         ItemCode: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            primaryKey: true
         },
         itemName: {
             type: DataTypes.STRING(200),
