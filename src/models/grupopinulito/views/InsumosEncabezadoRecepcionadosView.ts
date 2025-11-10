@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import { sequelizeInit } from "../../../config/database";
 
 class InsumosEncabezadoRecepcionadosView extends Model{
-    public id?: number;
+    // public id?: number;
     public idSolicitud!: number;
     public tienda?: string;
     public fecha?: string;
@@ -18,15 +18,16 @@ class InsumosEncabezadoRecepcionadosView extends Model{
 
 InsumosEncabezadoRecepcionadosView.init(
     {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: true,
-            primaryKey: true,
-            // autoIncrement: true
-        },
+        // id: {
+        //     type: DataTypes.BIGINT,
+        //     allowNull: true,
+        //     primaryKey: true,
+        //     // autoIncrement: true
+        // },
         idSolicitud: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            primaryKey: true
         },
         tienda: {
             type: DataTypes.STRING(32),
@@ -58,7 +59,8 @@ InsumosEncabezadoRecepcionadosView.init(
         },
         serie: {
             type: DataTypes.STRING(4),
-            allowNull: false
+            allowNull: false,
+            primaryKey: true
         },
         numero: {
             type: DataTypes.INTEGER,

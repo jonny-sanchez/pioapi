@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import { sequelizeInit } from "../../../config/database";
 
 class PolloEncabezadoRecepcionView extends Model {
-    public id?: number;
+    // public id?: number;
     public fecha?: string;
     public empresa!: string;
     public tda_nombre!: string;
@@ -15,11 +15,11 @@ class PolloEncabezadoRecepcionView extends Model {
 
 PolloEncabezadoRecepcionView.init(
     {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: true,
-            primaryKey: true
-        },
+        // id: {
+        //     type: DataTypes.BIGINT,
+        //     allowNull: true,
+        //     primaryKey: true
+        // },
         fecha: {
             type: DataTypes.STRING(30),
             allowNull: true
@@ -42,7 +42,8 @@ PolloEncabezadoRecepcionView.init(
         },
         idEntrada: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            primaryKey: true
         },
         tienda: {
             type: DataTypes.STRING(32),

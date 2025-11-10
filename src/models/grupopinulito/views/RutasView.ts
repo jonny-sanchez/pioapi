@@ -4,7 +4,7 @@ import { sequelizeInit } from "../../../config/database";
 
 // @Table({ noPrimaryKey: true })
 class RutasView extends Model {
-    public id!: number;
+    // public id!: number;
     public id_pedido!: number;
     public empresa?: string;
     public tienda?: string;
@@ -24,8 +24,8 @@ class RutasView extends Model {
 
 RutasView.init(
     {
-        id: { type: DataTypes.BIGINT, primaryKey: true },
-        id_pedido: { type: DataTypes.INTEGER, allowNull: true },
+        // id: { type: DataTypes.BIGINT, primaryKey: true },
+        id_pedido: { type: DataTypes.INTEGER, allowNull: true, primaryKey: true },
         empresa: { type: DataTypes.STRING(5), allowNull: true },
         tienda: { type: DataTypes.STRING(11), allowNull: true },
         fecha_entrega: { type: DataTypes.DATEONLY, allowNull: true },
@@ -37,7 +37,7 @@ RutasView.init(
         name_tipo_entrega: { type: DataTypes.STRING(7), allowNull: false },
         tienda_nombre: { type: DataTypes.STRING(256), allowNull: true },
         tienda_direccion: { type: DataTypes.STRING(512), allowNull: true },
-        serie: { type: DataTypes.STRING(100), allowNull: true },
+        serie: { type: DataTypes.STRING(100), allowNull: true, primaryKey: true },
         codigo_empleado_piloto: { type: DataTypes.INTEGER, allowNull: true },
         recepccionada: { type: DataTypes.INTEGER, allowNull: true }
     },

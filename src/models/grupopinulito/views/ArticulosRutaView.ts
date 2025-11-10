@@ -3,7 +3,7 @@ import { sequelizeInit } from "../../../config/database";
 
 
 class ArticulosRutaView extends Model {
-    public id!: number;
+    // public id!: number;
     public id_pedido?: number;
     public codigo_articulo?: string;
     public nombre_articulo?: string;
@@ -14,13 +14,13 @@ class ArticulosRutaView extends Model {
 
 ArticulosRutaView.init(
     {
-        id: { type: DataTypes.BIGINT, primaryKey: true },
-        id_pedido: { type: DataTypes.INTEGER, allowNull: true },
-        codigo_articulo: { type: DataTypes.STRING(500), allowNull: true },
+        // id: { type: DataTypes.BIGINT, primaryKey: true },
+        id_pedido: { type: DataTypes.INTEGER, allowNull: true, primaryKey: true },
+        codigo_articulo: { type: DataTypes.STRING(500), allowNull: true, primaryKey: true },
         nombre_articulo: { type: DataTypes.STRING(500), allowNull: true },
         description: { type: DataTypes.STRING(500), allowNull: true },
         cantidad: { type: DataTypes.FLOAT, allowNull: true },
-        serie: { type: DataTypes.STRING(100), allowNull: true }
+        serie: { type: DataTypes.STRING(100), allowNull: true, primaryKey: true }
     },
     {
         sequelize: sequelizeInit('GRUPOPINULITO'),
