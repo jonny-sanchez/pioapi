@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from "express" 
+import logger from "../logs/logger";
+import HandleLogData from "../types/Logs/HandleLogData";
 
 const errorHandlerMiddleware = (err:any, req:Request, res:Response, next:NextFunction) => {
     
@@ -9,6 +11,17 @@ const errorHandlerMiddleware = (err:any, req:Request, res:Response, next:NextFun
     const message = err.message || err.stack || "Internal Server Error"
 
     const status = err.status || 500;
+
+    logger.error("", {
+        type: 'global',
+        message: '',
+        stack: err?.stack,
+        name: err?.name,
+        isWithRollBack: false,
+        connection: null,
+        commitController: false,
+        errorRaw: err
+    } as HandleLogData)
 
     res.status(status).json({
         message,

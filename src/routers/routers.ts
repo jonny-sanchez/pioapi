@@ -11,6 +11,7 @@ import periodoRouter from "./Nomina/PeriodoRouter";
 import firmaBoletaRouter from "./Nomina/FirmaBoletaRouter";
 import boletaConsultaRouter from "./Nomina/BoletaConsultaRouter";
 import recepcionesRouter from "./Recepciones/RecepcionesRouter";
+import logsRouter from "./Logs/LogsRouter";
 
 const router = Router()
 
@@ -37,6 +38,8 @@ router.use('/nomina/boleta', boletaConsultaRouter)
 router.use('/articulos/ruta', articulosRutaRouter)
 
 router.use('/recepcion/articulos', recepcionesRouter)
+
+router.use('/logs', logsRouter)
 
 // router.use(authMiddleware)
 
