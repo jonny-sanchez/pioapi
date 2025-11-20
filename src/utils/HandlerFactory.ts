@@ -2,6 +2,8 @@ import { sequelizeInit } from "../config/database"
 import { ConnectionName, DEFAULT_CONNECTION } from "../config/configDatabase"
 import { Response } from "express"
 import { Transaction } from "sequelize"
+import logger from "../logs/logger"
+import HandleLogData from "../types/Logs/HandleLogData"
 
 export async function handleSend(
     res: Response,
@@ -31,9 +33,20 @@ export async function handleSend(
 
         if(isWithRollBack) t && await t.rollback()
 
-        console.log(error)
+        // console.log(error)
 
         const message = error?.message || error?.stack;
+
+        logger.error("Error en handleSend", {
+            type: 'handle',
+            message,
+            stack: error?.stack,
+            name: error?.name,
+            isWithRollBack,
+            connection,
+            commitController,
+            errorRaw: error
+        } as HandleLogData)
 
         return res.status(500).json({ message: message ?? 'Error server internal', status: false, data: null })
 

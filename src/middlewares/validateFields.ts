@@ -4,6 +4,8 @@ import { FilesConfigProps } from "../types/MiddlewareTypes";
 import { injectParamsToBody } from "../utils/ParamsInjector";
 import { validateFiles } from "../utils/FileValidator";
 import { formatErrorResponse } from "../utils/ErrorFormatter";
+import logger from "../logs/logger";
+import HandleLogData from "../types/Logs/HandleLogData";
 
 /**
  * Middleware principal para validar campos DTO y archivos
@@ -29,6 +31,18 @@ const validateFields = (
 
         next();
     } catch (error: any) {
+
+        logger.error("Error en middleware de validacion de entrada de datos.", {
+            type: 'fields',
+            message: '',
+            stack: error?.stack,
+            name: error?.name,
+            isWithRollBack: false,
+            connection: null,
+            commitController: false,
+            errorRaw: error
+        } as HandleLogData)
+
         const errorResponse = formatErrorResponse(error);
         return res.status(400).json(errorResponse);
     }

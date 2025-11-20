@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { generateToken, verifyToken } from "../utils/Jwt";
 import { RequestAuth } from "../types/ResponseTypes";
+import logger from "../logs/logger";
+import HandleLogData from "../types/Logs/HandleLogData";
 
 const authMiddleware = (req:RequestAuth, res:Response, next:NextFunction) => {
     try {
@@ -26,6 +28,17 @@ const authMiddleware = (req:RequestAuth, res:Response, next:NextFunction) => {
 
     } catch (error:any) {
         // console.log(error)
+        logger.error('Error en middleware de autenticacion.', {
+            type: 'auth',
+            message: '',
+            stack: error?.stack,
+            name: error?.name,
+            isWithRollBack: false,
+            connection: null,
+            commitController: false,
+            errorRaw: error
+        } as HandleLogData)
+
         return res.status(401).json({ message: error?.message || 'Unauthorized', status: false, data: null })
 
     }
