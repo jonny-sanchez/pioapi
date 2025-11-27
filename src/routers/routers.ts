@@ -12,6 +12,10 @@ import firmaBoletaRouter from "./Nomina/FirmaBoletaRouter";
 import boletaConsultaRouter from "./Nomina/BoletaConsultaRouter";
 import recepcionesRouter from "./Recepciones/RecepcionesRouter";
 import logsRouter from "./Logs/LogsRouter";
+import productoConvivioRouter from "./ProductoConvivio/ProductoConvivioRouter";
+import categoryProductoConvivioRouter from "./ProductoConvivio/CategoryProductoConvivioRouter";
+import personaConvivioRouter from "./PersonaConvivio/PersonaConvivioRouter";
+import consumosConvivioRouter from "./ConsumosConvivio/ConsumosConvivioRouter";
 
 const router = Router()
 
@@ -40,6 +44,14 @@ router.use('/articulos/ruta', articulosRutaRouter)
 router.use('/recepcion/articulos', recepcionesRouter)
 
 router.use('/logs', logsRouter)
+
+router.use('/producto/convivio', productoConvivioRouter)
+
+router.use('/category/product/convivio', categoryProductoConvivioRouter)
+
+router.use('/personas/convivio', personaConvivioRouter)
+
+router.use('/consumos/convivio', consumosConvivioRouter)
 
 // router.use(authMiddleware)
 
