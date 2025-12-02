@@ -30,4 +30,15 @@ export default class ConsumosConvivioController {
         }, 'Consumo listado correctmante.')
     }
 
+    async deleteConsumoConvivioPersona(req:RequestAuth<CreateConsumoConvivioDtoType>, res:Response<JsonResponse<any>>) {
+        await handleSend(res, async(t) => {
+            const result = await this.consumosConvivioService.deleteConsumo(
+                req.body,
+                t as Transaction,
+                req.user as userToken
+            )
+            return result
+        }, "Consumo eliminado correctamente.", true, 'PIOAPP')
+    }
+
 }

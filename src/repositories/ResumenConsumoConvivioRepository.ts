@@ -18,4 +18,17 @@ export default class ResumenConsumoConvivioRepository implements IResumenConsumo
         return result
     }
 
+    async findByIdPersonaAndIdProducto(id_personas_convivio: number, id_productos_convivio: number, error: boolean, raw: boolean): Promise<ResumenConsumoConvivioView | null> {
+        const result = await ResumenConsumoConvivioView.findOne({
+            where: {
+                id_personas_convivio,
+                id_productos_convivio
+            },
+            raw
+        }) 
+        if(!result && error) 
+            throw new Error(`Error no se encontro ningun consumo con id_personas_convivio: ${id_personas_convivio} y id_productos_convivio: ${id_productos_convivio}`);
+        return result
+    }
+
 }
