@@ -29,4 +29,18 @@ export default class ConsumosConvivioService {
         return consumoPersona
     }
 
+    async deleteConsumo(data:CreateConsumoConvivioDtoType, t:Transaction, user:userToken) : Promise<any> {
+        const getConsumo = await this.resumenConsumoConvivioRepository.findByIdPersonaAndIdProducto(
+            data.id_personas_convivio, data.id_productos_convivio, true, true
+        )
+        if(Number(getConsumo?.total_consumido ?? 0) <= 0) throw new Error("Error ya no se puede eliminar mas consumo.");
+        const consumo = await this.consumosConvivioRepository.create({
+            id_personas_convivio: data.id_personas_convivio,
+            id_productos_convivio: data.id_productos_convivio,
+            cantidad: -1,
+            userCreatedAt: Number(user?.id_users ?? null)
+        }, t)
+        return consumo
+    }
+
 }

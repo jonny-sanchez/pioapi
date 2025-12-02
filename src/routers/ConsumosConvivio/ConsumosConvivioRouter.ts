@@ -17,6 +17,12 @@ consumosConvivioRouter.post(
     consumosConvivioController.createConsumoConvivioPersona.bind(consumosConvivioController)
 )
 
+consumosConvivioRouter.delete(
+    '/create',
+    validateFields(CreateConsumoConvivioDto),
+    consumosConvivioController.deleteConsumoConvivioPersona.bind(consumosConvivioController)
+)
+
 consumosConvivioRouter.get(
     '/list',
     validateFields(ListConsumoPersonaConvivioDto, null, true),
