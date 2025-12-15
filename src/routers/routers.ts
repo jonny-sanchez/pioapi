@@ -16,6 +16,7 @@ import productoConvivioRouter from "./ProductoConvivio/ProductoConvivioRouter";
 import categoryProductoConvivioRouter from "./ProductoConvivio/CategoryProductoConvivioRouter";
 import personaConvivioRouter from "./PersonaConvivio/PersonaConvivioRouter";
 import consumosConvivioRouter from "./ConsumosConvivio/ConsumosConvivioRouter";
+import notificacionesPushRouter from "./NotificacionesPush/NotificacionesPushRouter";
 
 const router = Router()
 
@@ -52,6 +53,8 @@ router.use('/category/product/convivio', categoryProductoConvivioRouter)
 router.use('/personas/convivio', personaConvivioRouter)
 
 router.use('/consumos/convivio', consumosConvivioRouter)
+
+router.use('/notificaciones', notificacionesPushRouter)
 
 // router.use(authMiddleware)
 
