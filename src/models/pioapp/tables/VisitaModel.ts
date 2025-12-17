@@ -17,6 +17,7 @@ class VisitaModel extends Model {
     public id_form_supervision!: number;
     public comentario?: string;
     public google_maps_url?: string;
+    public id_visita_emergencia?: number | null;
     public userCreatedAt?: bigint;
     public userUpdatedAt?: bigint;
     public readonly createdAt!: Date;
@@ -40,6 +41,7 @@ VisitaModel.init(
         id_form_supervision: { type: DataTypes.INTEGER, allowNull: true },
         comentario: { type: DataTypes.STRING(500), allowNull: true },
         google_maps_url: { type: DataTypes.TEXT, allowNull: false },
+        id_visita_emergencia: { type: DataTypes.INTEGER, allowNull: true },
         userCreatedAt: { type: DataTypes.BIGINT, allowNull: true },
         userUpdatedAt: { type: DataTypes.BIGINT, allowNull: true },
     },
