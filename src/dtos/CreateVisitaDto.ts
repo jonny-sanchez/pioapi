@@ -20,7 +20,8 @@ export const CreateVisitaDto = yup.object({
     tienda_limpia: yup.boolean().when('id_tipo_visita', { is: 1, then: schema => schema.required('El [tienda_limpia] es un campo obligatorio.'), otherwise: schema => schema }),
     cantidad_personas: yup.boolean().when('id_tipo_visita', { is: 1, then: schema => schema.required('El [cantidad_personas] es un campo obligatorio.'), otherwise: schema => schema }),
     cantidad: yup.number(),
-    name_original_photo_personas: yup.string()
+    name_original_photo_personas: yup.string(),
+    id_visita_emergencia: yup.number()
 })
 
 export const fileConfigVisitaDto:FilesConfigProps[] = [
