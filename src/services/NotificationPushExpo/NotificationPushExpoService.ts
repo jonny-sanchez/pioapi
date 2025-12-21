@@ -74,4 +74,11 @@ export default class NotificationPushExpoService {
         return noti
     } 
 
+    async notificationPrevious(user:userToken) : Promise<any> {
+        const notis = await this.notificacionAppRepository.getAllPreviousByIdUser(
+            Number(user.id_users), [AsuntoNotificacionModel]
+        )
+        return notis
+    }
+
 }

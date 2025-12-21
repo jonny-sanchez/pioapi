@@ -51,4 +51,26 @@ export default class NotificacionAppRepository implements INotificacionAppReposi
         )
         return raw ? noti.get({ plain: true }) : noti   
     }
+
+    async getAllPreviousByIdUser(id_users: number, includes: any[] = [], raw: boolean = false): Promise<NotificacionAppModel[]> {
+        const result = await NotificacionAppModel.findAll({
+            where: {
+                [Op.and]: [
+                    // Filtra solo notificaciones diferentes a hoy
+                    where(
+                        fn('DATE', col(`${NotificacionAppModel.name}.createdAt`)), 
+                        { [Op.ne]: fn('DATE', fn('NOW')) } 
+                    ),
+                    // Filtra solo por usuario específico
+                    { id_users: id_users }
+                ]
+            },
+            include: includes,
+            order: [
+                [ 'createdAt', 'DESC' ]
+            ],
+            raw
+        })
+        return result
+    }
 }

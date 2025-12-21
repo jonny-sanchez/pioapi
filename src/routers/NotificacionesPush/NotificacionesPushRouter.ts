@@ -23,4 +23,9 @@ notificacionesPushRouter.post(
     notificationPushController.markerNotificacionRead.bind(notificationPushController)
 )
 
+notificacionesPushRouter.get(
+    '/previous',
+    notificationPushController.listNotificationsPrevious.bind(notificationPushController)
+)
+
 export default notificacionesPushRouter

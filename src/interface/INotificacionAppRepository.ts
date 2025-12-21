@@ -9,4 +9,6 @@ export default interface INotificacionAppRepository {
 
     updateStatusLeido(id_notificacion_app:number, value:boolean, t:Transaction|null, error:boolean, raw:boolean, includes: any[]) : Promise<NotificacionAppModel|null>
 
+    getAllPreviousByIdUser(id_users:number, includes: any[], raw:boolean) : Promise<NotificacionAppModel[]>
+
 }
