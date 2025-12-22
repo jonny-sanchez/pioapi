@@ -7,6 +7,9 @@ import { userToken } from "../../types/ResponseTypes";
 import UsersServices from "../Users/UsersServices";
 import DetalleEmpleadoCootraguaViewRepository from "../../repositories/DetalleEmpleadoCootraguaViewRepository";
 import TokenNotificationPushRepository from "../../repositories/TokenNotificationPushRepository";
+import { LoginBiometricDtoType } from "../../dtos/Auth/LoginBiometricDto";
+import UsersRepository from "../../repositories/UsersRepository";
+import UsersModel from "../../models/pioapp/tables/UsersModel";
 
 @injectable()
 export default class AuthServices {
@@ -16,7 +19,8 @@ export default class AuthServices {
         @inject(CryptServices) private cryptServices:CryptServices,
         @inject(UsersServices) private usersServices:UsersServices,
         @inject(DetalleEmpleadoCootraguaViewRepository) private detalleEmpleadoCootraguaViewRepository:DetalleEmpleadoCootraguaViewRepository,
-        @inject(TokenNotificationPushRepository) private tokenNotificationPushRepository:TokenNotificationPushRepository
+        @inject(TokenNotificationPushRepository) private tokenNotificationPushRepository:TokenNotificationPushRepository,
+        @inject(UsersRepository) private usersRepository:UsersRepository
     ) {}
 
     async validLogin(data:LoginDtoType, t:Transaction) : Promise<any | null> {
@@ -41,5 +45,14 @@ export default class AuthServices {
         return userData
     }
 
+    async validLoginBiometric(data:LoginBiometricDtoType, t:Transaction) : Promise<any> {
+        let user = await this.usersRepository.findById(
+            Number(data.user), true, true
+        ) as UsersModel
+        const { password, ...restUser } = user
+        const token = generateToken(restUser)
+        const userPayload = { ...restUser, token }
+        return userPayload
+    }
 
 }

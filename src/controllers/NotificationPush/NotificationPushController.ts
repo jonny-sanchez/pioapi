@@ -34,4 +34,13 @@ export default class NotificationPushController {
         }, "Notificacion marcada como leida correctamente", true, 'PIOAPP')
     }
 
+    async listNotificationsPrevious(req:RequestAuth<any>, res:Response<JsonResponse<any>>) {
+        await handleSend(res, async() => {
+            const result = await this.notificationPushExpoService.notificationPrevious(
+                req.user as userToken
+            )
+            return result
+        }, "Notificaciones anteriores listadas correctamente.")
+    }
+
 }

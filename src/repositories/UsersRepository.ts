@@ -7,7 +7,7 @@ import { Transaction } from "sequelize";
 export default class UsersRepository implements IUsersRepository{
 
     async findById(id: number, error: boolean = true, raw:boolean = false): Promise<UsersModel | null> {
-        const user = UsersModel.findByPk(id, { raw: raw })
+        const user = await UsersModel.findByPk(id, { raw: raw })
         if(error) if(!user) throw new Error("Usuario no encontrado.");
         return user
     }
