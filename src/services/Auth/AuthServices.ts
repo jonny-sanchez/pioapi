@@ -46,9 +46,18 @@ export default class AuthServices {
     }
 
     async validLoginBiometric(data:LoginBiometricDtoType, t:Transaction) : Promise<any> {
+        const { id_unique_device, exponent_push_token } = data
+        //encontrar usuario si no falla
         let user = await this.usersRepository.findById(
             Number(data.user), true, true
         ) as UsersModel
+        //gurdar notificaciones push en db
+        if(id_unique_device && exponent_push_token && user?.id_users)
+            await this.tokenNotificationPushRepository.upsertTokenNotificationPush(
+                id_unique_device,
+                { id_unique_device, exponent_push_token, id_users: Number(user.id_users) },
+                t
+            )
         const { password, ...restUser } = user
         const token = generateToken(restUser)
         const userPayload = { ...restUser, token }
