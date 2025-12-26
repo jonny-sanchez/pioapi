@@ -5,12 +5,14 @@ import authMiddleware from "../../middlewares/authMiddleware";
 import validateFields from "../../middlewares/validateFields";
 import { NotificationSendDto } from "../../dtos/NotificacionesPush/NotificationSendDto";
 import { MarkerReadNotificationDto } from "../../dtos/NotificacionesPush/MarkerReadNotificationDto";
+import basicAuthMiddleware from "../../middlewares/basicAuthMiddleware";
 
 const notificacionesPushRouter = Router()
 const notificationPushController = container.resolve(NotificationPushController)
 
 notificacionesPushRouter.post(
     '/send',
+    basicAuthMiddleware,
     validateFields(NotificationSendDto),
     notificationPushController.sendNotificationHandler.bind(notificationPushController)
 )

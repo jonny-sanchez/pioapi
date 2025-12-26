@@ -1,4 +1,4 @@
-import { Transaction } from "sequelize";
+import { Sequelize, Transaction } from "sequelize";
 import IVisitaEmergenciaRepository from "../interface/IVisitaEmergenciaRepository";
 import VisitaEmergenciaModel from "../models/pioapp/webtables/VisitaEmergenciaModel";
 import { injectable } from "tsyringe";
@@ -10,6 +10,11 @@ export default class VisitaEmergenciaRepository implements IVisitaEmergenciaRepo
         const visita = await VisitaEmergenciaModel.findOne({
             where: {
                 id_visita
+            },
+            attributes:{
+                include: [
+                    [ Sequelize.literal(`CURRENT_DATE >= "fecha_programacion"::DATE`), 'ingreso_visita_valid' ]
+                ]
             },
             transaction: t
         })
@@ -23,7 +28,14 @@ export default class VisitaEmergenciaRepository implements IVisitaEmergenciaRepo
     }
 
     async findById(id_visita: number, error: boolean = true, raw: boolean = false): Promise<VisitaEmergenciaModel | null> {
-        const result = await VisitaEmergenciaModel.findByPk(id_visita, { raw })
+        const result = await VisitaEmergenciaModel.findByPk(id_visita, { 
+            raw,
+            attributes: {
+                include: [
+                    [ Sequelize.literal(`CURRENT_DATE >= "fecha_programacion"::DATE`), 'ingreso_visita_valid' ]
+                ]
+            } 
+        })
         if(!result && error) throw new Error(`Error no se encontro ninguna visita emergencia con id: ${id_visita}`)
         return result
     }

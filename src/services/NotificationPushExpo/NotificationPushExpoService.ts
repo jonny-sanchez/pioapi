@@ -36,9 +36,6 @@ export default class NotificationPushExpoService {
         const validMessages = dataMessageNotificacion(
             tokensExpoPush, 'exponent_push_token', { title: data.title, body: `${data.body}`, priority: 'high', data: data.data_payload }
         )
-        //validar que haya mensajes si no retornar 0
-        if(validMessages.length <= 0) 
-            return generateResponseNoTokens()
         //guardar notificacion en db
         const notificacion =  await this.notificacionAppRepository.create({ 
             title: data.title,
@@ -47,6 +44,9 @@ export default class NotificationPushExpoService {
             dataPayload: data.data_payload,
             id_users: data.user
         }, [AsuntoNotificacionModel], t, true)
+        // //validar que haya mensajes si no retornar 0
+        // if(validMessages.length <= 0) 
+        //     return generateResponseNoTokens()
         //enviar notificaciones y obtener el response
         const resultSendNotification = await sendNotificationsMessage(
             this.expo, 
@@ -56,7 +56,7 @@ export default class NotificationPushExpoService {
         NotificationEventEmitter.emit('notificacion-nueva', notificacion)
         //retornar resultado de el envio de notificaciones push
         return { 
-            status: true,
+            status: validMessages.length <= 0 ? false : true,
             message: 'Notificaciones enviadas correctamente.', 
             notificationSendSuccess: resultSendNotification.success,
             notificationSendFail: resultSendNotification.error,
