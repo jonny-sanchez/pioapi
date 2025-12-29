@@ -28,7 +28,7 @@ export default class NotificacionesPushGateway {
         NotificationEventEmitter.on('notificacion-nueva', (notificacion:NotificacionAppModel) => {
             const roomUser = `notificaciones_room_${notificacion.id_users}`
             this.socketService.emitByRoom(roomUser, 'notificacion-nueva', notificacion)
-        })
+        }) 
 
         //avisar para cunado se leyo una notificacion interna
         NotificationEventEmitter.on('notificacion-leida', (notificacion:NotificacionAppModel) => {
