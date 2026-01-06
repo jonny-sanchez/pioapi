@@ -64,6 +64,8 @@ class DetalleEmpleadoCootraguaView extends Model {
     public empresaTrato?: number;
     public fechaIngreso?: Date;
     public fecha_ingreso_str?: string;
+    public finContract?: string;
+    public baja?: number;
     public codDepto?: number;
     public nomPuesto?: string;
     public idRol?: number;
@@ -132,6 +134,8 @@ DetalleEmpleadoCootraguaView.init(
         empleadoTrato: { type: DataTypes.BOOLEAN, allowNull: true },
         empresaTrato: { type: DataTypes.INTEGER, allowNull: true },
         fechaIngreso: { type: DataTypes.DATE, allowNull: true },
+        finContract: { type: DataTypes.DATE, allowNull: true },
+        baja: { type: DataTypes.INTEGER, allowNull: true },
         fecha_ingreso_str: { type: DataTypes.STRING(30), allowNull: true },
         codDepto: { type: DataTypes.INTEGER, allowNull: true },
         nomPuesto: { type: DataTypes.STRING(64), allowNull: true },

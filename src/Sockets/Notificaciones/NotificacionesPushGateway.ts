@@ -6,9 +6,10 @@ import NotificacionAppRepository from "../../repositories/NotificacionAppReposit
 import NotificationEventEmitter from "../../events/NotificationsPush/NotificationEventEmitter"
 import NotificacionAppModel from "../../models/pioapp/tables/NotificacionAppModel"
 import AsuntoNotificacionModel from "../../models/pioapp/tables/AsuntoNotificacionModel"
+import ISocket from "../../interface/Socket/ISocket"
 
 @injectable()
-export default class NotificacionesPushGateway {
+export default class NotificacionesPushGateway implements ISocket {
 
     private socketService:SocketService
 
@@ -17,10 +18,10 @@ export default class NotificacionesPushGateway {
       @inject(NotificacionAppRepository) private notificacionAppRepository:NotificacionAppRepository
     ) {
         this.socketService = new SocketService(this.endpoint)
-        this.init()
+        // this.init()
     }
 
-    private init() {
+    init() {
 
         this.socketService.getServer().use(socketAuthMiddeware)
 

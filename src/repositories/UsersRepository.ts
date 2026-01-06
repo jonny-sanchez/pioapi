@@ -1,7 +1,8 @@
 import IUsersRepository from "../interface/IUsersRepository";
 import UsersModel from "../models/pioapp/tables/UsersModel";
 import { injectable } from "tsyringe";
-import { Transaction } from "sequelize";
+import { Op, Transaction } from "sequelize";
+import DetalleEmpleadoCootraguaView from "../models/nomina/views/DetalleEmpleadoCootraguaView";
 
 @injectable()
 export default class UsersRepository implements IUsersRepository{
@@ -18,4 +19,25 @@ export default class UsersRepository implements IUsersRepository{
         return user
     }
 
+    async getUserActive(raw: boolean = false, include: any[] = []): Promise<UsersModel[]> {
+        const result = await UsersModel.findAll({
+            where: {
+                baja: false
+            },
+            include: include,
+            raw
+        }) 
+        return result
+    }
+
+    async lowUsersUpdate(data: Partial<UsersModel>, empleados: DetalleEmpleadoCootraguaView[] = [], t:Transaction|null = null): Promise<number> {
+        const result = await UsersModel.update(data, {
+            where: {
+                id_users: { [Op.in]: empleados.flatMap(({ codEmpleado }) => codEmpleado) }
+            },
+            transaction: t
+            // returning: true
+        })
+        return result[0]
+    }
 }

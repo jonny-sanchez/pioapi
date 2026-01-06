@@ -22,7 +22,17 @@ export const CreateVisitaDto = yup.object({
     cantidad: yup.number(),
     name_original_photo_personas: yup.string(),
     id_visita_emergencia: yup.number()
-})
+}).test(
+    'comentario-required-if-emergencia',
+    'El [comentario] es obligatorio si existe id_visita_emergencia.',
+    function (values) {
+        const { id_visita_emergencia, comentario } = values ?? {};
+        if (id_visita_emergencia != null && (!comentario || comentario.trim() === '')) {
+            return false; // falla la validación
+        }
+        return true; // pasa la validación
+    }
+)
 
 export const fileConfigVisitaDto:FilesConfigProps[] = [
     {

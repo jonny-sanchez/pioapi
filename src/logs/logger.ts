@@ -25,7 +25,8 @@ const logger = createLogger({
             datePattern: "YYYY-MM-DD",
             maxSize: "10m",
             maxFiles: "30d",
-            zippedArchive: true
+            zippedArchive: true,
+            utc: false
         })
     ]
 })

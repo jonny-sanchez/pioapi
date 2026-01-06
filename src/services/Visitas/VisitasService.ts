@@ -31,11 +31,20 @@ export default class VisitasService {
             ? await this.fileServices.fileUploadSingle(file.foto_personas, 'visitas') 
             : null 
         const insertFormSupervision = data.id_tipo_visita == 1 
-            ? await this.formSupervisionRepository.create({...data, url_photo_personas: resultUploadPhotoPersonas?.urlS3 || null, cantidad: !toBoolean(data?.cantidad_personas) ? null : data.cantidad}, t, true) 
+            ? await this.formSupervisionRepository.create({
+                ...data, 
+                url_photo_personas: resultUploadPhotoPersonas?.urlS3 || null, 
+                cantidad: !toBoolean(data?.cantidad_personas) ? null : data.cantidad
+            }, t, true) 
             : null
-        const insertVisita = await this.visitaRepository.create(
-            {...data, google_maps_url: `https://www.google.com/maps/search/?api=1&query=${data.phone_gps_latitude},${data.phone_gps_longitude}`, id_form_supervision: insertFormSupervision?.id_form_supervision || null, url_image: resultUploadPhotoVisita.urlS3, userCreatedAt: user.id_users}, t
-        )
+        const insertVisita = await this.visitaRepository.create({
+            ...data, 
+            comentario: (data?.comentario) ? data.comentario : null,
+            google_maps_url: `https://www.google.com/maps/search/?api=1&query=${data.phone_gps_latitude},${data.phone_gps_longitude}`, 
+            id_form_supervision: insertFormSupervision?.id_form_supervision || null, 
+            url_image: resultUploadPhotoVisita.urlS3, 
+            userCreatedAt: user.id_users
+        }, t)
         return insertVisita 
     }
 

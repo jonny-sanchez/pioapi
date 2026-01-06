@@ -1,12 +1,13 @@
 import { container } from "tsyringe"
 import RutasGateway from "./Rutas/RutasGateway"
 import NotificacionesPushGateway from "./Notificaciones/NotificacionesPushGateway"
+import ISocket from "../interface/Socket/ISocket"
 
 export default class SocketServer {
 
     static socketModule () {
         return [
-            RutasGateway,
+            // RutasGateway,
             NotificacionesPushGateway
         ]
     }
@@ -17,7 +18,8 @@ export default class SocketServer {
         container.register<string>('NotificacionesEndpoint', { useValue: '/notificaciones' })
 
         for(const Module of this.socketModule()) {
-            container.resolve<any>(Module)
+            const instance =  container.resolve<ISocket>(Module)
+            instance.init()
         }
 
     }
