@@ -10,6 +10,9 @@ import fileUpload from 'express-fileupload'
 import http from 'http'
 import HandleSocketGlobal from "./config/HandleSocketGlobal";
 import SocketServer from "./Sockets/SocketServer";
+import limiterMiddleware from "./middlewares/limiterMiddleware";
+import helmet from "helmet";
+import ServerJob from "./jobs/ServerJob";
 // import multer from 'multer'
 
 // config()
@@ -20,7 +23,13 @@ const server = http.createServer(app)
 
 // const upload = multer()
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 5000
+
+// Confía en el primer proxy para obtener la IP real del cliente (necesario para rate limit)
+app.set('trust proxy', 1)
+
+//seguridad
+app.use(helmet())
 
 app.use(cors())
 
@@ -32,6 +41,15 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(fileUpload())
 
+//mandar error de timeout si la api se tarda mucho
+// app.use(timeout('5s'))
+
+//middleware global para generar error en las apis
+// app.use(timeoutMiddleware)
+
+//proteger apis de saturacion de solicitudes
+app.use('/api', limiterMiddleware)
+
 //all apis
 app.use('/api', Routers)
 
@@ -39,6 +57,9 @@ app.use('/api', Routers)
 HandleSocketGlobal.init(server)
 
 SocketServer.appGateway()
+
+//cron jobs
+ServerJob.handle()
 
 app.use(errorHandlerMiddleware)
 

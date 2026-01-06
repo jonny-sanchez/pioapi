@@ -20,6 +20,7 @@ class UsersModel extends Model {
     public userUpdatedAt!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+    public baja?: boolean;
 }
 
 UsersModel.init(
@@ -38,7 +39,8 @@ UsersModel.init(
         direccion: { type: DataTypes.STRING(500), allowNull: true },
         puesto_trabajo: { type: DataTypes.STRING(500), allowNull: true },
         userCreatedAt: { type: DataTypes.BIGINT, allowNull: true },
-        userUpdatedAt: { type: DataTypes.BIGINT, allowNull: true }
+        userUpdatedAt: { type: DataTypes.BIGINT, allowNull: true },
+        baja: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
     },
     {
         sequelize: sequelizeInit('PIOAPP'),
