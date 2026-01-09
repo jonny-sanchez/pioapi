@@ -5,7 +5,7 @@ class tPeriodoModel extends Model {
     declare idPeriodo: number;
     declare nombrePeriodo: string | null;
     declare fechaInicio: Date;
-    declare fechaFin: Date;
+    declare fechaFin: string;
     declare pagada: boolean;
     declare noQuincena: number | null;
     declare activo: boolean;

@@ -2,6 +2,7 @@ import ItPeriodoRepository from "../interface/ItPeriodoRepository";
 import tPeriodoModel from "../models/nomina/tables/tPeriodoModel";
 import { injectable } from "tsyringe";
 import { Op } from "sequelize";
+import { PeriodosPagadosType } from "../types/PeriodosNomina/PeriodosPagadosType";
 
 @injectable()
 export default class tPeriodoRepository implements ItPeriodoRepository {

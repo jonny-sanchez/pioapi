@@ -1,7 +1,8 @@
-import { Transaction } from "sequelize";
+import { col, fn, Op, Transaction, where } from "sequelize";
 import ItFirmaBoletaRepository from "../interface/ItFirmaBoletaRepository";
 import tFirmaBoletaModel from "../models/pdv/tables/tFirmaBoletaModel";
 import { injectable } from "tsyringe";
+import { TipoPeriodoEnum } from "../types/PeriodosNomina/PeriodosPagadosType";
 
 @injectable()
 export default class tFirmaBoletaRepository implements ItFirmaBoletaRepository {
@@ -90,6 +91,30 @@ export default class tFirmaBoletaRepository implements ItFirmaBoletaRepository {
             raw
         });
         return result;
+    }
+
+    async findOrCreateByYearAndTipo(
+        year: number, 
+        tipo: number, 
+        codEmpleado:number, 
+        idPeriodo:number,
+        data: Partial<tFirmaBoletaModel>, 
+        t: Transaction | null = null, 
+        raw: boolean = false
+    ): Promise<tFirmaBoletaModel> {
+        let firma = await tFirmaBoletaModel.findOne({
+          where: {
+            [Op.and]: [
+              ...((tipo == TipoPeriodoEnum.BONO14 || tipo == TipoPeriodoEnum.AGUINALDO) ? [where(fn('YEAR', col('FechaHora')), year)] : []),
+              { tipo },
+              { codEmpleado },
+              { idPeriodo }
+            ]
+          },
+          transaction: t
+        })
+        if(!firma) firma = await tFirmaBoletaModel.create(data, { transaction: t })
+        return raw ? firma.get({ plain: true }) : firma 
     }
 
 }

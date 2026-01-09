@@ -1,6 +1,10 @@
 import { inject, injectable } from "tsyringe";
 import tPlanillaRepository from "../../repositories/tPlanillaRepository";
 import FirmaBoletaPagoRepository from "../../repositories/FirmaBoletaPagoRepository";
+import { TipoPeriodoEnum } from "../../types/PeriodosNomina/PeriodosPagadosType";
+import Bono14Repository from "../../repositories/Bono14Repository";
+import tPeriodoEspecialBoletaRepository from "../../repositories/tPeriodoEspecialBoletaRepository";
+import AguinaldoRepository from "../../repositories/AguinaldoRepository";
 
 export interface ResumenPagoResponse {
     nombrePeriodo: string | null;
@@ -62,7 +66,10 @@ export default class BoletaConsultaService {
 
     constructor(
         @inject(tPlanillaRepository) private tPlanillaRepository: tPlanillaRepository,
-        @inject(FirmaBoletaPagoRepository) private firmaBoletaRepository: FirmaBoletaPagoRepository
+        @inject(FirmaBoletaPagoRepository) private firmaBoletaRepository: FirmaBoletaPagoRepository,
+        @inject(Bono14Repository) private bono14Repository:Bono14Repository,
+        @inject(AguinaldoRepository) private aguinaldoRepository:AguinaldoRepository
+        // @inject(tPeriodoEspecialBoletaRepository) private periodoEspecialBoletaRepository:tPeriodoEspecialBoletaRepository
     ) {}
 
     /**
@@ -107,19 +114,37 @@ export default class BoletaConsultaService {
     async obtenerDetalleCompleto(
         idUsers: number, 
         codEmpleado: number, 
-        idPeriodo: number
+        idPeriodo: number,
+        tipo: number
     ): Promise<DetalleCompletoResponse> {
-        const boleta = await this.tPlanillaRepository.findBoletaCompletaByEmpleadoAndPeriodo(
-            codEmpleado, 
-            idPeriodo
-        );
+        const isQuincena = tipo == TipoPeriodoEnum.QUINCENA
+        const isBono14 = tipo == TipoPeriodoEnum.BONO14
+        const isAguinaldo = tipo == TipoPeriodoEnum.AGUINALDO
+        let boleta = null
+
+        if(isQuincena)
+            boleta = await this.tPlanillaRepository.findBoletaCompletaByEmpleadoAndPeriodo(codEmpleado, idPeriodo);
+
+        if(isBono14)
+            boleta = await this.bono14Repository.findBoletaCompletaByEmpleadoAndPeriodo(codEmpleado, idPeriodo)
+
+        if(isAguinaldo)
+            boleta = await this.aguinaldoRepository.findBoletaCompletaByEmpleadoAndPeriodo(codEmpleado, idPeriodo)
+        
+        // if(isBono14 || isAguinaldo){
+        //     // const periodo = await this.periodoEspecialBoletaRepository.find(idPeriodo, true, true)
+        //     // const year = Number(new Date(periodo?.fechaFin ?? "").getFullYear()) ?? 2025 
+        //     boleta = isBono14 
+        //         ? await this.bono14Repository.findByYearAndUser(year, codEmpleado, false, true)
+        //         : null
+        // }
 
         if (!boleta) {
             throw new Error("No se encontró información de pago para este empleado en el periodo especificado");
         }
 
         // Buscar si existe firma para esta boleta
-        const firma = await this.firmaBoletaRepository.findByUserAndPeriodo(idUsers, idPeriodo);
+        const firma = await this.firmaBoletaRepository.findByUserAndPeriodo(idUsers, idPeriodo, true, false, tipo);
 
         const totalIngresos = (boleta.ordinario || 0) + (boleta.sSimples || 0) + 
                              (boleta.sDobles || 0) + (boleta.bonifDecreto || 0) + 
@@ -127,6 +152,8 @@ export default class BoletaConsultaService {
 
         const totalDescuentos = (boleta.igss || 0) + (boleta.isr || 0) + (boleta.ahorro || 0) + 
                                (boleta.seguro || 0) + (boleta.otrosDescuentos || 0);
+
+        console.log(boleta)
 
         const response: DetalleCompletoResponse = {
             numeroBoleta: boleta.idPlanilla,

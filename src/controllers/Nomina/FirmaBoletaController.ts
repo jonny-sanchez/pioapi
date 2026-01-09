@@ -6,6 +6,7 @@ import { handleSend } from "../../utils/HandlerFactory";
 import { Transaction } from "sequelize";
 import { FirmaBoletaDtoType, InvalidarFirmaDtoType, VerificarIntegridadDtoType } from "../../dtos/FirmaBoletaDto";
 import { VerificarFirmaExistenteType } from "../../dtos/VerificarFirmaExistenteDto";
+import { TipoPeriodoEnum } from "../../types/PeriodosNomina/PeriodosPagadosType";
 
 @injectable()
 export default class FirmaBoletaController {
@@ -18,14 +19,13 @@ export default class FirmaBoletaController {
      * Endpoint para firmar una boleta de pago
      */
     async firmarBoleta(req: RequestAuth, res: Response<JsonResponse<any>>) {
-        await handleSend(res, async (t) => {
+        await handleSend(res, async () => {
             const result = await this.firmaBoletaService.firmarBoleta(
-                t as Transaction,
                 req.body as FirmaBoletaDtoType,
                 req.user as userToken
             );
             return result;
-        }, 'Boleta firmada exitosamente.', true, 'PIOAPP');
+        }, 'Boleta firmada exitosamente.');
     }
 
     /**
@@ -84,7 +84,7 @@ export default class FirmaBoletaController {
     async verificarFirmaExistente(req: RequestAuth, res: Response<JsonResponse<any>>) {
         await handleSend(res, async () => {
             // Los query parameters fueron inyectados al body y validados
-            const { id_periodo } = req.body as VerificarFirmaExistenteType;
+            const { id_periodo, tipo } = req.body as VerificarFirmaExistenteType;
 
             if (!req.user) {
                 throw new Error("Usuario no autenticado");
@@ -92,7 +92,8 @@ export default class FirmaBoletaController {
 
             const result = await this.firmaBoletaService.verificarFirmaExistente(
                 Number(req.user.id_users),
-                id_periodo
+                id_periodo,
+                tipo ?? TipoPeriodoEnum.QUINCENA
             );
 
             return result;

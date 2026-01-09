@@ -3,17 +3,18 @@ import { sequelizeInit } from "../../../config/database";
 
 class FirmaBoletaPagoModel extends Model {
     declare id_firma_boleta_pago: string;
-    declare id_users: bigint;
+    declare id_users: number;
     declare id_periodo: number;
     declare phone_gps_longitude: string;
     declare phone_gps_latitude: string;
     declare hash_boleta_firmada: string;
     declare valido: boolean;
     declare motivo_invalidacion: string | null;
-    declare userCreatedAt: bigint | null;
+    declare userCreatedAt: number | null;
     declare userUpdatedAt: bigint | null;
     declare readonly createdAt: Date;
     declare readonly updatedAt: Date;
+    declare readonly id_tipo_boleta: number;
 }
 
 FirmaBoletaPagoModel.init(
@@ -61,6 +62,11 @@ FirmaBoletaPagoModel.init(
             type: DataTypes.BIGINT, 
             allowNull: true 
         },
+        id_tipo_boleta: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        }
     },
     {
         sequelize: sequelizeInit('PIOAPP'),
