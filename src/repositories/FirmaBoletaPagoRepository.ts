@@ -2,6 +2,7 @@ import { Transaction } from "sequelize";
 import IFirmaBoletaPagoRepository from "../interface/IFirmaBoletaPagoRepository";
 import FirmaBoletaPagoModel from "../models/pioapp/tables/FirmaBoletaPagoModel";
 import { injectable } from "tsyringe";
+import { TipoPeriodoEnum } from "../types/PeriodosNomina/PeriodosPagadosType";
 
 @injectable()
 export default class FirmaBoletaPagoRepository implements IFirmaBoletaPagoRepository {
@@ -16,13 +17,15 @@ export default class FirmaBoletaPagoRepository implements IFirmaBoletaPagoReposi
         id_users: number, 
         id_periodo: number, 
         valido: boolean = true, 
-        raw: boolean = false
+        raw: boolean = false,
+        id_tipo_boleta: number = TipoPeriodoEnum.QUINCENA
     ): Promise<FirmaBoletaPagoModel | null> {
         const result = await FirmaBoletaPagoModel.findOne({
             where: {
                 id_users,
                 id_periodo,
-                valido
+                valido,
+                id_tipo_boleta
             },
             raw
         });
@@ -79,6 +82,15 @@ export default class FirmaBoletaPagoRepository implements IFirmaBoletaPagoReposi
             raw
         });
         return result;
+    }
+
+    async findOrCreate(where: Partial<FirmaBoletaPagoModel>, data: Partial<FirmaBoletaPagoModel>, t: Transaction | null = null, raw: boolean = false): Promise<FirmaBoletaPagoModel> {
+        const [firma, created] = await FirmaBoletaPagoModel.findOrCreate({
+            where: { ...where },
+            defaults: { ...data },
+            transaction: t
+        })
+        return raw ? firma.get({ plain: true }) : firma
     }
 
 }

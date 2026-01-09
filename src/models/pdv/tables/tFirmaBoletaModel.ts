@@ -5,13 +5,14 @@ class tFirmaBoletaModel extends Model {
     declare idFirmaBoleta: number;
     declare empresa: string;
     declare tienda: string;
-    declare FechaHora: Date;
+    declare FechaHora: any;
     declare codEmpleado: number;
     declare firma: string | null;
     declare idDispositivo: string;
     declare datosBoleta: string;
     declare idPeriodo: number;
     declare vigente: boolean;
+    declare tipo:number;
 }
 
 tFirmaBoletaModel.init(
@@ -60,6 +61,11 @@ tFirmaBoletaModel.init(
             type: DataTypes.BOOLEAN, 
             allowNull: true,
             defaultValue: true
+        },
+        tipo: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
         }
     },
     {

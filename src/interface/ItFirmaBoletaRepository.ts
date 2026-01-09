@@ -18,5 +18,7 @@ export default interface ItFirmaBoletaRepository {
     findByDispositivo(idDispositivo: string, raw?: boolean): Promise<tFirmaBoletaModel[]>;
     
     getAll(raw?: boolean): Promise<tFirmaBoletaModel[]>;
+
+    findOrCreateByYearAndTipo(year:number, tipo:number, codEmpleado:number, idPeriodo:number, data:Partial<tFirmaBoletaModel>, t:Transaction|null, raw:boolean) : Promise<tFirmaBoletaModel>
     
 }

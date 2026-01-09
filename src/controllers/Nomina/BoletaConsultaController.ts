@@ -4,6 +4,7 @@ import { JsonResponse, RequestAuth, userToken } from "../../types/ResponseTypes"
 import { Response } from "express";
 import { handleSend } from "../../utils/HandlerFactory";
 import { ConsultaBoletaDtoType } from "../../dtos/ConsultaBoletaDto";
+import { TipoPeriodoEnum } from "../../types/PeriodosNomina/PeriodosPagadosType";
 
 @injectable()
 export default class BoletaConsultaController {
@@ -38,7 +39,7 @@ export default class BoletaConsultaController {
      */
     async obtenerDetalleCompleto(req: RequestAuth, res: Response<JsonResponse<any>>) {
         await handleSend(res, async () => {
-            const { id_periodo } = req.body as ConsultaBoletaDtoType;
+            const { id_periodo, tipo } = req.body as ConsultaBoletaDtoType;
 
             if (!req.user) {
                 throw new Error("Usuario no autenticado");
@@ -48,7 +49,8 @@ export default class BoletaConsultaController {
             const detalle = await this.boletaConsultaService.obtenerDetalleCompleto(
                 Number(user.id_users),
                 Number(user.id_users), // cod_empleado del usuario autenticado
-                id_periodo
+                id_periodo,
+                tipo || TipoPeriodoEnum.QUINCENA
             );
 
             return detalle;

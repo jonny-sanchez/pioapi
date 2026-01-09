@@ -1,4 +1,9 @@
 import * as yup from 'yup';
+import { TipoPeriodoEnum } from '../types/PeriodosNomina/PeriodosPagadosType';
+
+const tiposNumericos = Object.values(TipoPeriodoEnum).filter(
+    (v) => typeof v === 'number'
+) as number[];
 
 export const FirmaBoletaDto = yup.object({
     id_periodo: yup
@@ -20,7 +25,14 @@ export const FirmaBoletaDto = yup.object({
     ip_dispositivo: yup
         .string()
         .matches(/^(\d{1,3}\.){3}\d{1,3}$/, "La [ip_dispositivo] debe ser una dirección IP válida.")
-        .required("La [ip_dispositivo] es un campo obligatorio.")
+        .required("La [ip_dispositivo] es un campo obligatorio."),
+
+    tipo: yup.number()
+            .oneOf(tiposNumericos, 'El tipo de periodo no es válido')
+            .notRequired()
+            .nullable()
+            .default(TipoPeriodoEnum.QUINCENA),
+    
 });
 
 export const InvalidarFirmaDto = yup.object({
