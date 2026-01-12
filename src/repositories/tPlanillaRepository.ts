@@ -135,6 +135,7 @@ export default class tPlanillaRepository implements ItPlanillaRepository {
                 p.idPeriodo,
                 p.diasLaborados,
                 p.ordinario,
+                0 as anticipo,
                 p.sSimples,
                 p.sDobles,
                 p.bonifDecreto,

@@ -1,7 +1,9 @@
 import { Transaction } from "sequelize";
 import ITokenNotificationPushRepository from "../interface/ITokenNotificationPushRepository";
 import TokenNotificationPushModel from "../models/pioapp/tables/TokenNotificationPushModel";
+import { injectable } from "tsyringe";
 
+@injectable()
 export default class TokenNotificationPushRepository implements ITokenNotificationPushRepository{
 
     async create(data: Partial<TokenNotificationPushModel>, t: Transaction | null = null, raw: boolean = false): Promise<TokenNotificationPushModel> {
