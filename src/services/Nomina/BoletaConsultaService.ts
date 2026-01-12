@@ -50,6 +50,7 @@ export interface DetalleCompletoResponse {
         totalIngresos: number;
     };
     descuentos: {
+        anticipo: number,
         igss: number;
         isr: number;
         ahorro: number;
@@ -59,6 +60,7 @@ export interface DetalleCompletoResponse {
     };
     neto: number;
     liquido: number;
+    tipo: number
 }
 
 @injectable()
@@ -151,7 +153,7 @@ export default class BoletaConsultaService {
                              (boleta.otrosIngresos || 0);
 
         const totalDescuentos = (boleta.igss || 0) + (boleta.isr || 0) + (boleta.ahorro || 0) + 
-                               (boleta.seguro || 0) + (boleta.otrosDescuentos || 0);
+                               (boleta.seguro || 0) + (boleta.otrosDescuentos || 0) + (boleta?.anticipo || 0);
 
         console.log(boleta)
 
@@ -170,7 +172,7 @@ export default class BoletaConsultaService {
             },
             diasTrabajados: boleta.diasLaborados || 0,
             ingresos: {
-                salarioOrdinario: boleta.ordinario || 0,
+                salarioOrdinario: boleta.ordinario || 0, //esta campo tambien se utiliza para el anticipo en el caso de bono 14 y aguinaldo
                 horasSimples: boleta.sSimples || 0,
                 horasDobles: boleta.sDobles || 0,
                 bonificacion: boleta.bonifDecreto || 0,
@@ -178,6 +180,7 @@ export default class BoletaConsultaService {
                 totalIngresos
             },
             descuentos: {
+                anticipo: boleta?.anticipo || 0,
                 igss: boleta.igss || 0,
                 isr: boleta.isr || 0,
                 ahorro: boleta.ahorro || 0,
@@ -186,7 +189,8 @@ export default class BoletaConsultaService {
                 totalDescuentos
             },
             neto: boleta.neto || 0,
-            liquido: boleta.liquido || 0
+            liquido: boleta.liquido || 0,
+            tipo
         };
 
         // Agregar información de firma si existe

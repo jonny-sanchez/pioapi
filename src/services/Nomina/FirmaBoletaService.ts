@@ -63,8 +63,8 @@ export default class FirmaBoletaService {
         // data: FirmaBoletaData,
         data: FirmaBoletaDtoType,
         user: userToken
-    ) : Promise<any>
-    // : Promise<BoletaFirmadaResponse> 
+    )
+    : Promise<BoletaFirmadaResponse> 
     {
         const tPioapp = await sequelizeInit('PIOAPP').transaction()
         const tPdv = await sequelizeInit('PDV').transaction()
@@ -161,7 +161,7 @@ export default class FirmaBoletaService {
                 periodo: periodo.nombrePeriodo || `Período ${periodo.idPeriodo}`,
                 monto_liquido: parseFloat(planilla.liquido?.toString() || "0"),
                 fecha_firma: firmaPioapp.createdAt,
-                hash_boleta_firmada: hashBoleta,
+                hash_boleta_firmada: `${hashBoleta}`,
                 firma_uuid: firmaPdv?.firma || firmaUuid || null,
                 // hola: firmaPdv
             };
