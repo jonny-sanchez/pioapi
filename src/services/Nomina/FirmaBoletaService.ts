@@ -136,7 +136,7 @@ export default class FirmaBoletaService {
                 {
                     empresa: "0000",
                     tienda: "0000",
-                    FechaHora: literal(`CAST('${periodo.fechaFin}' as DATETIME)`),
+                    ...(isQuincena ? {} : { FechaHora: literal(`CAST('${periodo.fechaFin}' as DATETIME)`) }),
                     codEmpleado: Number(user.id_users),
                     firma: firmaUuid,
                     idDispositivo: data.ip_dispositivo,
@@ -161,7 +161,7 @@ export default class FirmaBoletaService {
                 periodo: periodo.nombrePeriodo || `Período ${periodo.idPeriodo}`,
                 monto_liquido: parseFloat(planilla.liquido?.toString() || "0"),
                 fecha_firma: firmaPioapp.createdAt,
-                hash_boleta_firmada: `${hashBoleta}`,
+                hash_boleta_firmada: hash,
                 firma_uuid: firmaPdv?.firma || firmaUuid || null,
                 // hola: firmaPdv
             };
