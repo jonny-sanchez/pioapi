@@ -63,7 +63,7 @@ export default class PeriodoService {
             idPeriodo: number,
             nombrePeriodo: string | null,
             fechaInicio: Date,
-            fechaFin: Date
+            fechaFin: Date|string
         }
     }> {
         const periodo = await this.tPeriodoRepository.findById(idPeriodo);
