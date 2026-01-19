@@ -12,5 +12,6 @@ export interface PeriodosPagadosType {
 export enum TipoPeriodoEnum {
     QUINCENA = 1,
     AGUINALDO = 2,
-    BONO14 = 3
+    BONO14 = 3,
+    VACACION = 4
 }

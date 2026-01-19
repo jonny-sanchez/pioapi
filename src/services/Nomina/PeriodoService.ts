@@ -3,22 +3,37 @@ import tPeriodoRepository from "../../repositories/tPeriodoRepository";
 import tPeriodoModel from "../../models/nomina/tables/tPeriodoModel";
 import { PeriodosPagadosType, TipoPeriodoEnum } from "../../types/PeriodosNomina/PeriodosPagadosType";
 import tPeriodoEspecialBoletaRepository from "../../repositories/tPeriodoEspecialBoletaRepository";
+import PeriodoVacacionRepository from "../../repositories/PeriodoVacacionRepository";
+import { userToken } from "../../types/ResponseTypes";
 
 @injectable()
 export default class PeriodoService {
 
     constructor(
         @inject(tPeriodoRepository) private tPeriodoRepository: tPeriodoRepository,
-        @inject(tPeriodoEspecialBoletaRepository) private periodoEspecialBoletaRepository:tPeriodoEspecialBoletaRepository
+        @inject(tPeriodoEspecialBoletaRepository) private periodoEspecialBoletaRepository:tPeriodoEspecialBoletaRepository,
+        @inject(PeriodoVacacionRepository) private periodoVacacionRepository:PeriodoVacacionRepository
     ) {}
 
     /**
      * Obtener los últimos periodos pagados
      */
-    async obtenerUltimosPeriodosPagados(limite: number = 5): Promise<PeriodosPagadosType[]> {
+    async obtenerUltimosPeriodosPagados(limite: number = 5, user:userToken): Promise<PeriodosPagadosType[]> {
 
         const periodosEspeciales = await this.periodoEspecialBoletaRepository.getByYear(2025, true)
         const periodos = await this.tPeriodoRepository.findUltimosPeriodosPagados(limite, true);
+        const periodosVacaciones = await this.periodoVacacionRepository.getByUser(Number(user.id_users), true)
+
+        const periodosVacacionesFlat:PeriodosPagadosType[] = periodosVacaciones.map((periodoVac:any) => ({
+            idPeriodo: periodoVac.idPeriodo,
+            nombrePeriodo: periodoVac.nombrePeriodo,
+            fechaInicio: periodoVac.fechaInicio,
+            fechaFin: periodoVac.fechaFin,
+            pagada: periodoVac.pagada,
+            noQuincena: periodoVac.noQuincena,
+            activo: periodoVac.activo,
+            tipo: periodoVac.tipo
+        }))
 
         const periodosAguinaldoBono14:PeriodosPagadosType[] = periodosEspeciales.map((perEspecial:any) => ({
             idPeriodo: perEspecial.idPeriodo,
@@ -42,7 +57,7 @@ export default class PeriodoService {
             tipo: TipoPeriodoEnum.QUINCENA
         }));
 
-        return [ ...peridosFlat, ...periodosAguinaldoBono14 ]
+        return [ ...peridosFlat, ...periodosAguinaldoBono14, ...periodosVacacionesFlat ]
 
     }
 

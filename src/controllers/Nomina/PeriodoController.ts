@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import PeriodoService from "../../services/Nomina/PeriodoService";
-import { JsonResponse, RequestAuth } from "../../types/ResponseTypes";
+import { JsonResponse, RequestAuth, userToken } from "../../types/ResponseTypes";
 import { Response } from "express";
 import { handleSend } from "../../utils/HandlerFactory";
 
@@ -19,7 +19,10 @@ export default class PeriodoController {
             const { limite } = req.query as { limite?: string };
             const limiteNumerico = limite ? parseInt(limite) : 5;
 
-            const periodos = await this.periodoService.obtenerUltimosPeriodosPagados(limiteNumerico);
+            const periodos = await this.periodoService.obtenerUltimosPeriodosPagados(
+                limiteNumerico,
+                req.user as userToken
+            );
             return periodos;
         }, 'Últimos periodos pagados obtenidos exitosamente.', true, 'NOMINA');
     }
