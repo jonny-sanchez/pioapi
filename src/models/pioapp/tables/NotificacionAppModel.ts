@@ -29,7 +29,7 @@ NotificacionAppModel.init(
             allowNull: false 
         },
         body: { 
-            type: DataTypes.STRING(500), 
+            type: DataTypes.TEXT, 
             allowNull: false
         },
         dataPayload: { 

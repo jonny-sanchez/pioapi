@@ -14,6 +14,12 @@ import { FirmaBoletaDtoType } from "../../dtos/FirmaBoletaDto";
 import Bono14Repository from "../../repositories/Bono14Repository";
 import AguinaldoRepository from "../../repositories/AguinaldoRepository";
 import { generarDatosBoletaQuincena, hashBoleta, orderDataPlanillaQuincena } from "../../utils/Boletas/BoletasUtil";
+import PeriodoVacacionRepository from "../../repositories/PeriodoVacacionRepository";
+import tVacacionRepository from "../../repositories/tVacacionRepository";
+import tPlanillaModel from "../../models/nomina/tables/tPlanillaModel";
+import tBono14Model from "../../models/nomina/tables/tBono14Model";
+import tAguinaldoModel from "../../models/nomina/tables/tAguinaldoModel";
+import tVacacionModel from "../../models/nomina/tables/tVacacionModel";
 
 export interface FirmaBoletaData {
     id_periodo: number;
@@ -53,7 +59,9 @@ export default class FirmaBoletaService {
         @inject(tFirmaBoletaRepository) private tFirmaBoletaRepository: tFirmaBoletaRepository,
         @inject(tPeriodoEspecialBoletaRepository) private periodoEspecialBoletaRepository:tPeriodoEspecialBoletaRepository,
         @inject(Bono14Repository) private bono14Repository:Bono14Repository,
-        @inject(AguinaldoRepository) private aguinaldoRepository:AguinaldoRepository 
+        @inject(AguinaldoRepository) private aguinaldoRepository:AguinaldoRepository,
+        @inject(PeriodoVacacionRepository) private periodoVacacionRepository:PeriodoVacacionRepository,
+        @inject(tVacacionRepository) private vacacionRepository:tVacacionRepository  
     ) {}
 
     /**
@@ -73,12 +81,14 @@ export default class FirmaBoletaService {
             const isQuincena = TipoPeriodoEnum.QUINCENA == data.tipo
             const isBono14 = TipoPeriodoEnum.BONO14 == data.tipo
             const isAguinaldo = TipoPeriodoEnum.AGUINALDO == data.tipo
+            const isVacacion = TipoPeriodoEnum.VACACION == data.tipo
             let periodo = null
             let planilla = null
             
             // 1. Validar que el período existe y está activo
             if(isQuincena) periodo = await this.tPeriodoRepository.findById(data.id_periodo, true);
-            if(!isQuincena) periodo = await this.periodoEspecialBoletaRepository.find(data.id_periodo, false, true)
+            if(isAguinaldo || isBono14) periodo = await this.periodoEspecialBoletaRepository.find(data.id_periodo, false, true)
+            if(isVacacion) periodo = await this.periodoVacacionRepository.findById(data.id_periodo, true)
 
             //validaciones de periodo
             if (!periodo) throw new Error("El período especificado no existe.");
@@ -91,12 +101,15 @@ export default class FirmaBoletaService {
             // 2. Obtener la planilla del empleado para este período
             if(isQuincena) planilla = await this.tPlanillaRepository.findByEmpleadoAndPeriodo(
                     Number(user.id_users), data.id_periodo, true
-                );
+                )
             if(isBono14) planilla = await this.bono14Repository.findByYearAndUser(
-                year, Number(user.id_users), false, true
-            )
+                    year, Number(user.id_users), false, true
+                )
             if(isAguinaldo) planilla = await this.aguinaldoRepository.findByYearAndUser(
-                year, Number(user.id_users), false, true
+                    year, Number(user.id_users), false, true
+                )
+            if(isVacacion) planilla = await this.vacacionRepository.findPlanillaVacacion(
+                periodo?.idPeriodo ?? 0, false, true
             )
 
             if (!planilla) throw new Error("No se encontró planilla para este empleado en el período especificado.");
@@ -112,6 +125,7 @@ export default class FirmaBoletaService {
                 [TipoPeriodoEnum.QUINCENA]: data.id_periodo,
                 [TipoPeriodoEnum.AGUINALDO]: 1212,
                 [TipoPeriodoEnum.BONO14]: 7777,
+                [TipoPeriodoEnum.VACACION]: 8888
             }
 
             const firmaPioapp = await this.firmaBoletaPagoRepository.findOrCreate(
@@ -154,12 +168,16 @@ export default class FirmaBoletaService {
             await tPdv.commit()
             
             // 8. Retornar respuesta estructurada
+            const liquido = isVacacion 
+                ? (planilla as tVacacionModel).vacacionLiquido 
+                : (planilla as tPlanillaModel | tBono14Model | tAguinaldoModel).liquido
+            
             return {
                 id_firma_boleta_pago: firmaPioapp.id_firma_boleta_pago,
                 id_firma_boleta_pdv: firmaPdv?.idFirmaBoleta ?? null,
                 empleado: (planilla as any)?.empleado ?? '',
                 periodo: periodo.nombrePeriodo || `Período ${periodo.idPeriodo}`,
-                monto_liquido: parseFloat(planilla.liquido?.toString() || "0"),
+                monto_liquido: parseFloat(liquido?.toString() || "0"),
                 fecha_firma: firmaPioapp.createdAt,
                 hash_boleta_firmada: hash,
                 firma_uuid: firmaPdv?.firma || firmaUuid || null,

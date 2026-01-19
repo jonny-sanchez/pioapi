@@ -5,63 +5,8 @@ import { TipoPeriodoEnum } from "../../types/PeriodosNomina/PeriodosPagadosType"
 import Bono14Repository from "../../repositories/Bono14Repository";
 import tPeriodoEspecialBoletaRepository from "../../repositories/tPeriodoEspecialBoletaRepository";
 import AguinaldoRepository from "../../repositories/AguinaldoRepository";
-
-export interface ResumenPagoResponse {
-    nombrePeriodo: string | null;
-    totalRecibido: number;
-    numeroBoleta: number;
-    periodo: string;
-    diasTrabajados: number;
-    descuentos: {
-        igss: number;
-        isr: number;
-        ahorro: number;
-        seguro: number;
-        otrosDescuentos: number;
-        totalDescuentos: number;
-    };
-}
-
-export interface DetalleCompletoResponse {
-    numeroBoleta: number;
-    empleado: {
-        codigo: string | null;
-        nombre: string | null;
-    };
-    periodo: {
-        id: number;
-        nombre: string | null;
-        rango: string;
-        fechaInicio: string;
-        fechaFin: string;
-    };
-    diasTrabajados: number;
-    firma?: {
-        idFirmaBoleta: string;
-        fechaFirma: Date;
-        valido: boolean;
-    };
-    ingresos: {
-        salarioOrdinario: number;
-        horasSimples: number;
-        horasDobles: number;
-        bonificacion: number;
-        otrosIngresos: number;
-        totalIngresos: number;
-    };
-    descuentos: {
-        anticipo: number,
-        igss: number;
-        isr: number;
-        ahorro: number;
-        seguro: number;
-        otrosDescuentos: number;
-        totalDescuentos: number;
-    };
-    neto: number;
-    liquido: number;
-    tipo: number
-}
+import { DetalleCompletoResponse, ResumenPagoResponse, VerificarBoletaResponse } from "../../types/BoletaNomina/BoletaNominaType";
+import tVacacionRepository from "../../repositories/tVacacionRepository";
 
 @injectable()
 export default class BoletaConsultaService {
@@ -70,7 +15,8 @@ export default class BoletaConsultaService {
         @inject(tPlanillaRepository) private tPlanillaRepository: tPlanillaRepository,
         @inject(FirmaBoletaPagoRepository) private firmaBoletaRepository: FirmaBoletaPagoRepository,
         @inject(Bono14Repository) private bono14Repository:Bono14Repository,
-        @inject(AguinaldoRepository) private aguinaldoRepository:AguinaldoRepository
+        @inject(AguinaldoRepository) private aguinaldoRepository:AguinaldoRepository,
+        @inject(tVacacionRepository) private vacacionRepository:tVacacionRepository
         // @inject(tPeriodoEspecialBoletaRepository) private periodoEspecialBoletaRepository:tPeriodoEspecialBoletaRepository
     ) {}
 
@@ -122,6 +68,7 @@ export default class BoletaConsultaService {
         const isQuincena = tipo == TipoPeriodoEnum.QUINCENA
         const isBono14 = tipo == TipoPeriodoEnum.BONO14
         const isAguinaldo = tipo == TipoPeriodoEnum.AGUINALDO
+        const isVacacion = tipo == TipoPeriodoEnum.VACACION
         let boleta = null
 
         if(isQuincena)
@@ -132,6 +79,9 @@ export default class BoletaConsultaService {
 
         if(isAguinaldo)
             boleta = await this.aguinaldoRepository.findBoletaCompletaByEmpleadoAndPeriodo(codEmpleado, idPeriodo)
+
+        if(isVacacion) 
+            boleta = await this.vacacionRepository.findBoletaCompletaByEmpleadoAndPeriodo(codEmpleado, idPeriodo)
         
         // if(isBono14 || isAguinaldo){
         //     // const periodo = await this.periodoEspecialBoletaRepository.find(idPeriodo, true, true)
@@ -155,7 +105,7 @@ export default class BoletaConsultaService {
         const totalDescuentos = (boleta.igss || 0) + (boleta.isr || 0) + (boleta.ahorro || 0) + 
                                (boleta.seguro || 0) + (boleta.otrosDescuentos || 0) + (boleta?.anticipo || 0);
 
-        console.log(boleta)
+        // console.log(boleta)
 
         const response: DetalleCompletoResponse = {
             numeroBoleta: boleta.idPlanilla,
@@ -208,10 +158,7 @@ export default class BoletaConsultaService {
     /**
      * Verificar si existe información de pago para un empleado en un periodo
      */
-    async verificarExistenciaBoleta(codEmpleado: number, idPeriodo: number): Promise<{
-        existe: boolean;
-        pagado?: boolean;
-    }> {
+    async verificarExistenciaBoleta(codEmpleado: number, idPeriodo: number): Promise<VerificarBoletaResponse> {
         const boleta = await this.tPlanillaRepository.findBoletaCompletaByEmpleadoAndPeriodo(
             codEmpleado, 
             idPeriodo
