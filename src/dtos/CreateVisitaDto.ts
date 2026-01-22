@@ -40,7 +40,7 @@ export const fileConfigVisitaDto:FilesConfigProps[] = [
         nameFormData: 'foto_visita',
         maxFiles: 1,
         minFiles: 1,
-        maxSize: 7,
+        maxSize: 25,
         allowedTypes: ['image']
         // maxSize: 
     },
@@ -49,7 +49,7 @@ export const fileConfigVisitaDto:FilesConfigProps[] = [
         nameFormData: 'foto_personas',
         maxFiles: 1,
         // minFiles: 1,
-        maxSize: 7,
+        maxSize: 25,
         allowedTypes: ['image']
         // maxSize: 
     } 
