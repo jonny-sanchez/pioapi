@@ -3,6 +3,7 @@ import PeriodoService from "../../services/Nomina/PeriodoService";
 import { JsonResponse, RequestAuth, userToken } from "../../types/ResponseTypes";
 import { Response } from "express";
 import { handleSend } from "../../utils/HandlerFactory";
+import { PeriodoPaginacionDtoType } from "../../dtos/PeriodoNomina/PeriodoPaginacionDto";
 
 @injectable()
 export default class PeriodoController {
@@ -10,6 +11,13 @@ export default class PeriodoController {
     constructor(
         @inject(PeriodoService) private periodoService: PeriodoService
     ) {}
+
+    async paginacionPeriodosAndSearch(req:RequestAuth<PeriodoPaginacionDtoType>, res:Response<JsonResponse<any[]>>) {
+        await handleSend(res, async() => {
+            const result = await this.periodoService.cursorPaginatePeriodos(req.body, req.user as userToken)
+            return result
+        }, "Periodos listados correctamente.")
+    }
 
     /**
      * Obtener los últimos periodos pagados

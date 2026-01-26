@@ -6,6 +6,25 @@ import { injectable } from "tsyringe";
 @injectable()
 export default class tPeriodoEspecialBoletaRepository implements ItPeriodoEspecialBoletaRepository {
 
+    async paginateAndSearch(search: string | null, cursor: number | null, limit: number, raw: boolean, tipo:1212|7777): Promise<tPeriodoEspecialBoletaModel[]> {
+        const where: any = {};
+        if (search) where.nombrePeriodo = { [Op.like]: `%${search.trim()}%` }
+        if (cursor) where.idPeriodo = { [Op.lt]: cursor }
+        // if (cursor) where.idPeriodo = {...(where?.idPeriodo || {}), [Op.gt]: cursor }
+        const result = await tPeriodoEspecialBoletaModel.findAll({
+            where: {
+                ...where,
+                pagada: true,
+                activo: true,
+                tipo: tipo
+            },
+            limit,
+            raw,
+            order: [['idPeriodo', 'DESC']]
+        })
+        return result
+    }
+
     async getByYear(year: number, raw: boolean = false): Promise<tPeriodoEspecialBoletaModel[]> {
         const result = await tPeriodoEspecialBoletaModel.findAll({
             where: where(

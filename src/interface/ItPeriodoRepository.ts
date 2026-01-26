@@ -1,6 +1,8 @@
 import tPeriodoModel from "../models/nomina/tables/tPeriodoModel";
 
 export default interface ItPeriodoRepository {
+
+    paginateAndSearch(search: string|null, cursor: number|null, limit: number, raw:boolean) : Promise<tPeriodoModel[]>
     
     findById(idPeriodo: number, raw?: boolean): Promise<tPeriodoModel | null>;
     

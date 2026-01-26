@@ -7,6 +7,24 @@ import { PeriodosPagadosType } from "../types/PeriodosNomina/PeriodosPagadosType
 @injectable()
 export default class tPeriodoRepository implements ItPeriodoRepository {
 
+    async paginateAndSearch(search: string|null, cursor: number|null, limit: number, raw:boolean = false): Promise<tPeriodoModel[]> {
+        const where: any = {};
+        if (search) where.nombrePeriodo = { [Op.like]: `%${search.trim()}%` }
+        if (cursor) where.idPeriodo = { [Op.lt]: cursor }
+        // if (cursor) where.idPeriodo = {...(where?.idPeriodo || {}), [Op.gt]: cursor }
+        const result = await tPeriodoModel.findAll({
+            where: {
+                ...where,
+                pagada: true,
+                activo: true
+            },
+            limit,
+            raw,
+            order: [['idPeriodo', 'DESC']]
+        })
+        return result
+    }
+
     async findById(idPeriodo: number, raw: boolean = false): Promise<tPeriodoModel | null> {
         const result = await tPeriodoModel.findByPk(idPeriodo, { raw });
         return result;

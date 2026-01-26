@@ -5,6 +5,9 @@ import { PeriodosPagadosType, TipoPeriodoEnum } from "../../types/PeriodosNomina
 import tPeriodoEspecialBoletaRepository from "../../repositories/tPeriodoEspecialBoletaRepository";
 import PeriodoVacacionRepository from "../../repositories/PeriodoVacacionRepository";
 import { userToken } from "../../types/ResponseTypes";
+import { PeriodoPaginacionDtoType } from "../../dtos/PeriodoNomina/PeriodoPaginacionDto";
+import tPeriodoEspecialBoletaModel from "../../models/nomina/tables/tPeriodoEspecialBoletaModel";
+import PeriodoVacacionView from "../../models/nomina/views/PeriodoVacacionView";
 
 @injectable()
 export default class PeriodoService {
@@ -14,6 +17,41 @@ export default class PeriodoService {
         @inject(tPeriodoEspecialBoletaRepository) private periodoEspecialBoletaRepository:tPeriodoEspecialBoletaRepository,
         @inject(PeriodoVacacionRepository) private periodoVacacionRepository:PeriodoVacacionRepository
     ) {}
+
+    async cursorPaginatePeriodos(data:PeriodoPaginacionDtoType, user:userToken) : Promise<any> {
+        const search = data?.search || ""
+        const cursor = data?.cursor || null
+        const limit = Number(data?.limit || 10)
+        const codEmpleado = Number(user.id_users)
+        let paginate:tPeriodoModel[]|tPeriodoEspecialBoletaModel[]|PeriodoVacacionView[] = []
+
+        if(data.tipo_periodo == TipoPeriodoEnum.QUINCENA)
+            paginate = await this.tPeriodoRepository.paginateAndSearch(search, cursor, limit, true)
+
+        if(data.tipo_periodo == TipoPeriodoEnum.AGUINALDO)
+            paginate = await this.periodoEspecialBoletaRepository.paginateAndSearch(search, cursor, limit, true, 1212)
+
+        if(data.tipo_periodo == TipoPeriodoEnum.BONO14)
+            paginate = await this.periodoEspecialBoletaRepository.paginateAndSearch(search, cursor, limit, true, 7777)
+
+        if(data.tipo_periodo == TipoPeriodoEnum.VACACION)
+            paginate = await this.periodoVacacionRepository.paginateAndSearch(search, cursor, limit, true, codEmpleado)
+
+        return {
+            list: paginate.map((per) => ({
+                idPeriodo: per.idPeriodo,
+                nombrePeriodo: per.nombrePeriodo,
+                fechaInicio: per.fechaInicio,
+                fechaFin: per.fechaFin,
+                pagada: per.pagada,
+                noQuincena: per.noQuincena,
+                activo: per.activo,
+                tipo: Number(data.tipo_periodo)
+            })),
+            nextCursor: paginate.length ? paginate[paginate.length - 1]?.idPeriodo : null,
+            hasMore: paginate.length === limit
+        }
+    }
 
     /**
      * Obtener los últimos periodos pagados
