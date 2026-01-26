@@ -17,7 +17,7 @@ export default class tVacacionRepository implements ItVacacionRepository {
         const sequelize = sequelizeInit('NOMINA')
         const result = await sequelize.query(
             `SELECT 
-                p.idVacacion as idPlanilla,
+                p.idAusencia as idPlanilla,
                 p.codEmpleado,
                 emp.nombreEmpleadoCompleto as empleado,
                 emp.aliasCodigo as codigo,

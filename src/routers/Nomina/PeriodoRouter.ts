@@ -2,12 +2,19 @@ import { Router } from "express";
 import { container } from "tsyringe";
 import PeriodoController from "../../controllers/Nomina/PeriodoController";
 import authMiddleware from "../../middlewares/authMiddleware";
+import validateFields from "../../middlewares/validateFields";
+import { PeriodoPaginacionDto } from "../../dtos/PeriodoNomina/PeriodoPaginacionDto";
 
 const periodoRouter = Router();
 const periodoController = container.resolve(PeriodoController);
 
 // Aplicar middleware de autenticación a todas las rutas
 periodoRouter.use(authMiddleware);
+
+periodoRouter.get('/',
+    validateFields(PeriodoPaginacionDto, null, true),
+    periodoController.paginacionPeriodosAndSearch.bind(periodoController)
+)
 
 // GET /api/nomina/periodos/ultimos-pagados?limite=10 - Obtener últimos periodos pagados
 periodoRouter.get('/ultimos-pagados', 
