@@ -3,11 +3,12 @@ import tPeriodoModel from "../models/nomina/tables/tPeriodoModel";
 import { injectable } from "tsyringe";
 import { Op } from "sequelize";
 import { PeriodosPagadosType } from "../types/PeriodosNomina/PeriodosPagadosType";
+import tPlanillaModel from "../models/nomina/tables/tPlanillaModel";
 
 @injectable()
 export default class tPeriodoRepository implements ItPeriodoRepository {
 
-    async paginateAndSearch(search: string|null, cursor: number|null, limit: number, raw:boolean = false): Promise<tPeriodoModel[]> {
+    async paginateAndSearch(search: string|null, cursor: number|null, limit: number, raw:boolean = false, codEmpleado:number): Promise<tPeriodoModel[]> {
         const where: any = {};
         if (search) where.nombrePeriodo = { [Op.like]: `%${search.trim()}%` }
         if (cursor) where.idPeriodo = { [Op.lt]: cursor }
@@ -18,6 +19,15 @@ export default class tPeriodoRepository implements ItPeriodoRepository {
                 pagada: true,
                 activo: true
             },
+            include: [
+                {
+                    model: tPlanillaModel,
+                    required: true,
+                    where: {
+                        codEmpleado: codEmpleado
+                    }
+                }
+            ],
             limit,
             raw,
             order: [['idPeriodo', 'DESC']]

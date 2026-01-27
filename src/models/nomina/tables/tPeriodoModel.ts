@@ -1,5 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelizeInit } from "../../../config/database";
+import tPlanillaModel from "./tPlanillaModel";
 
 class tPeriodoModel extends Model {
     declare idPeriodo: number;
@@ -53,5 +54,7 @@ tPeriodoModel.init(
         timestamps: false // SQL Server no tiene createdAt/updatedAt automáticos
     }
 )
+
+tPeriodoModel.hasOne(tPlanillaModel, { foreignKey: 'idPeriodo' })
 
 export default tPeriodoModel

@@ -1,5 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelizeInit } from "../../../config/database";
+import tAguinaldoModel from "./tAguinaldoModel";
+import tBono14Model from "./tBono14Model";
 
 class tPeriodoEspecialBoletaModel extends Model {
     public idPeriodo?: number;
@@ -59,5 +61,22 @@ tPeriodoEspecialBoletaModel.init(
         timestamps: false
     }
 );
+
+
+tPeriodoEspecialBoletaModel.hasOne(tAguinaldoModel, {
+  foreignKey: 'anio',
+  constraints: false
+})
+
+tPeriodoEspecialBoletaModel.hasOne(tBono14Model, {
+    foreignKey: 'anio',
+    constraints: false
+})
+
+// tAguinaldoModel.belongsTo(tPeriodoEspecialBoletaModel, {
+//   foreignKey: 'anio',
+//   constraints: false
+// })
+
 
 export default tPeriodoEspecialBoletaModel;

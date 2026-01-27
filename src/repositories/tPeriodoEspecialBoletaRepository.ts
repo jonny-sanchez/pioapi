@@ -1,12 +1,15 @@
-import { col, fn, Op, where } from "sequelize";
+import { col, fn, literal, Op, where } from "sequelize";
 import ItPeriodoEspecialBoletaRepository from "../interface/ItPeriodoEspecialBoletaRepository";
 import tPeriodoEspecialBoletaModel from "../models/nomina/tables/tPeriodoEspecialBoletaModel";
 import { injectable } from "tsyringe";
+import tAguinaldoModel from "../models/nomina/tables/tAguinaldoModel";
+import tBono14Model from "../models/nomina/tables/tBono14Model";
 
 @injectable()
 export default class tPeriodoEspecialBoletaRepository implements ItPeriodoEspecialBoletaRepository {
 
-    async paginateAndSearch(search: string | null, cursor: number | null, limit: number, raw: boolean, tipo:1212|7777): Promise<tPeriodoEspecialBoletaModel[]> {
+    async paginateAndSearch(search: string | null, cursor: number | null, limit: number, raw: boolean, tipo:1212|7777, codEmpleado:number): Promise<tPeriodoEspecialBoletaModel[]> {
+        const modelInclude = tipo == 1212 ? tAguinaldoModel : tBono14Model
         const where: any = {};
         if (search) where.nombrePeriodo = { [Op.like]: `%${search.trim()}%` }
         if (cursor) where.idPeriodo = { [Op.lt]: cursor }
@@ -18,6 +21,16 @@ export default class tPeriodoEspecialBoletaRepository implements ItPeriodoEspeci
                 activo: true,
                 tipo: tipo
             },
+            include: [
+                {
+                    model: modelInclude,
+                    required: true,
+                    on: literal(
+                        `YEAR(${tPeriodoEspecialBoletaModel.name}.fechaFin) = ${modelInclude.name}.anio
+                        AND ${modelInclude.name}.codEmpleado = ${codEmpleado}`
+                    )
+                }
+            ],
             limit,
             raw,
             order: [['idPeriodo', 'DESC']]
