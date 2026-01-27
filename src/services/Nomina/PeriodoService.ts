@@ -26,13 +26,13 @@ export default class PeriodoService {
         let paginate:tPeriodoModel[]|tPeriodoEspecialBoletaModel[]|PeriodoVacacionView[] = []
 
         if(data.tipo_periodo == TipoPeriodoEnum.QUINCENA)
-            paginate = await this.tPeriodoRepository.paginateAndSearch(search, cursor, limit, true)
+            paginate = await this.tPeriodoRepository.paginateAndSearch(search, cursor, limit, true, codEmpleado)
 
         if(data.tipo_periodo == TipoPeriodoEnum.AGUINALDO)
-            paginate = await this.periodoEspecialBoletaRepository.paginateAndSearch(search, cursor, limit, true, 1212)
+            paginate = await this.periodoEspecialBoletaRepository.paginateAndSearch(search, cursor, limit, true, 1212, codEmpleado)
 
         if(data.tipo_periodo == TipoPeriodoEnum.BONO14)
-            paginate = await this.periodoEspecialBoletaRepository.paginateAndSearch(search, cursor, limit, true, 7777)
+            paginate = await this.periodoEspecialBoletaRepository.paginateAndSearch(search, cursor, limit, true, 7777, codEmpleado)
 
         if(data.tipo_periodo == TipoPeriodoEnum.VACACION)
             paginate = await this.periodoVacacionRepository.paginateAndSearch(search, cursor, limit, true, codEmpleado)
