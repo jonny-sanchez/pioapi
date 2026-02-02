@@ -13,6 +13,7 @@ import SocketServer from "./Sockets/SocketServer";
 import limiterMiddleware from "./middlewares/limiterMiddleware";
 import helmet from "helmet";
 import ServerJob from "./jobs/ServerJob";
+import EventServer from "./events/EventServer";
 // import multer from 'multer'
 
 // config()
@@ -60,6 +61,9 @@ SocketServer.appGateway()
 
 //cron jobs
 ServerJob.handle()
+
+//inicializar listener de eventos
+EventServer.initEventServer()
 
 app.use(errorHandlerMiddleware)
 

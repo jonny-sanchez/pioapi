@@ -9,6 +9,7 @@ import { clearTextAndUpperCase } from "../../utils/Cadenas/TextUtil";
 import SapPolloService from "./SapPollo/SapPolloService";
 import ResponseEntryArticulosSapType from "../../types/Recepciones/ResponseEntryArticulosSapType";
 import tEntradaInventarioModel from "../../models/pdv/tables/tEntradaInventarioModel";
+import RecepcionEventPush from "../../events/Recepcion/RecepcionEventPush";
 
 @injectable()
 export default class RecepcionesServices {
@@ -20,6 +21,13 @@ export default class RecepcionesServices {
     ) {}
 
     async saveRecepcionService(data:saveRecepcionDtoType, user:userToken) : Promise<any> {
+
+        //emitir notificacion
+        const { tienda_nombre, name_tipo_entrega } = data.cabecera
+        const codigo_empleado_piloto = Number(data?.cabecera?.codigo_empleado_piloto ?? 0)
+        let total_articulos:number = 0
+        data?.detalle?.forEach(({ cantidad }) => total_articulos += Number(cantidad))
+        //variables para notificacion
 
         let responseSapSdk:ResponseEntryArticulosSapType|null = null
 
@@ -39,6 +47,17 @@ export default class RecepcionesServices {
             entradaEncabezadoPdv, 
             responseSapSdk as ResponseEntryArticulosSapType
         )
+
+        //emitir notificacion
+        codigo_empleado_piloto && RecepcionEventPush.EVENT_EMIT_NOTIFICATION({ 
+            data: { 
+                body: `Se completo una entrega de '${name_tipo_entrega??" -- "}' en la tienda '${tienda_nombre??' -- '}', total de la recepcion: ${total_articulos} articulos.`,
+                id_asunto_notificacion: 1,
+                title: `${tienda_nombre??" -- "}`,
+                user: codigo_empleado_piloto,
+                data_payload: {}
+            } 
+        })
 
         return responseSapSdk
     }
