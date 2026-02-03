@@ -11,4 +11,6 @@ export default interface INotificacionAppRepository {
 
     getAllPreviousByIdUser(id_users:number, includes: any[], raw:boolean) : Promise<NotificacionAppModel[]>
 
+    count(where:Partial<NotificacionAppModel>) : Promise<number>
+
 }
