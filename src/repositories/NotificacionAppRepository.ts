@@ -73,4 +73,9 @@ export default class NotificacionAppRepository implements INotificacionAppReposi
         })
         return result
     }
+
+    async count(where: Partial<NotificacionAppModel>): Promise<number> {
+        const result = await NotificacionAppModel.count({ where })
+        return result
+    }
 }

@@ -29,24 +29,24 @@ export default class RecepcionesServices {
         data?.detalle?.forEach(({ cantidad }) => total_articulos += Number(cantidad))
         //variables para notificacion
 
-        let responseSapSdk:ResponseEntryArticulosSapType|null = null
+        // let responseSapSdk:ResponseEntryArticulosSapType|null = null
 
-        this.entradaPdvService.validSerieEntrada(data)
+        // this.entradaPdvService.validSerieEntrada(data)
         
-        const entradaEncabezadoPdv:tEntradaInventarioModel = await this.entradaPdvService.createEntradas(data) as tEntradaInventarioModel
+        // const entradaEncabezadoPdv:tEntradaInventarioModel = await this.entradaPdvService.createEntradas(data) as tEntradaInventarioModel
 
-        const isInsumo = SERIES_INSUMOS.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
+        // const isInsumo = SERIES_INSUMOS.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
 
-        const isPollo = SERIES_AVICOLA.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
+        // const isPollo = SERIES_AVICOLA.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
 
-        if(isInsumo) responseSapSdk = await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv)
+        // if(isInsumo) responseSapSdk = await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv)
 
-        if(isPollo) responseSapSdk = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
+        // if(isPollo) responseSapSdk = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
 
-        await this.entradaPdvService.updateEncabezadoByIdEntradaInventario(
-            entradaEncabezadoPdv, 
-            responseSapSdk as ResponseEntryArticulosSapType
-        )
+        // await this.entradaPdvService.updateEncabezadoByIdEntradaInventario(
+        //     entradaEncabezadoPdv, 
+        //     responseSapSdk as ResponseEntryArticulosSapType
+        // )
 
         //emitir notificacion
         codigo_empleado_piloto && RecepcionEventPush.EVENT_EMIT_NOTIFICATION({ 
@@ -55,11 +55,11 @@ export default class RecepcionesServices {
                 id_asunto_notificacion: 1,
                 title: `${tienda_nombre??" -- "}`,
                 user: codigo_empleado_piloto,
-                data_payload: {}
+                data_payload: data ?? {}
             } 
         })
 
-        return responseSapSdk
+        // return responseSapSdk
     }
 
 }
