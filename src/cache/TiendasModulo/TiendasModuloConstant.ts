@@ -1,0 +1,1 @@
+export const KEY_CACHE_ALL_TIENDAS = 'cache:all_tiendas'
