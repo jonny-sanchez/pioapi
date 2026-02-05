@@ -14,6 +14,7 @@ import limiterMiddleware from "./middlewares/limiterMiddleware";
 import helmet from "helmet";
 import ServerJob from "./jobs/ServerJob";
 import EventServer from "./events/EventServer";
+import { connectRedis } from "./config/redisClient";
 // import multer from 'multer'
 
 // config()
@@ -68,6 +69,8 @@ EventServer.initEventServer()
 app.use(errorHandlerMiddleware)
 
 server.listen(PORT, ()=> {
+
+    connectRedis()
 
     connectionDb()
 
